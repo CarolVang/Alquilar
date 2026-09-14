@@ -1,0 +1,5 @@
+.env
+writable/*
+!writable/index.html
+vendor/
+node_modules/
