@@ -21,9 +21,9 @@
     color:#fff; padding:50px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;
   }
   .side::after{ content:""; position:absolute; right:-80px; bottom:-80px; width:260px; height:260px; border:50px solid rgba(255,255,255,.06); border-radius:50%; }
-  .logo{ font-size:22px; font-weight:700; }
+  .logo{ font-size:36px; font-weight:700; margin-bottom:8px; letter-spacing:.3px; }
   .logo span{ color:var(--amber-500); }
-  .side h2{ font-size:26px; line-height:1.25; max-width:340px; margin-top:40px; }
+  .side h2{ font-size:26px; line-height:1.25; max-width:340px; margin-top:14px; }
   .side p{ color:#CFE0DB; font-size:13.5px; max-width:320px; }
   .stat-pill{ display:inline-flex; gap:8px; align-items:center; background:rgba(255,255,255,.1); padding:8px 14px; border-radius:20px; font-size:12px; }
 

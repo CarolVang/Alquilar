@@ -21,9 +21,9 @@
     color:#fff; padding:50px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;
   }
   .login-side::after{ content:""; position:absolute; right:-80px; bottom:-80px; width:260px; height:260px; border:50px solid rgba(255,255,255,.06); border-radius:50%; }
-  .logo{ font-size:22px; font-weight:700; }
+  .logo{ font-size:36px; font-weight:700; margin-bottom:8px; letter-spacing:.3px; }
   .logo span{ color:var(--amber-500); }
-  .login-side h2{ font-size:26px; line-height:1.25; max-width:340px; margin-top:40px; }
+  .login-side h2{ font-size:26px; line-height:1.25; max-width:340px; margin-top:14px; }
   .login-side p{ color:#CFE0DB; font-size:13.5px; max-width:320px; }
   .stat-pill{ display:inline-flex; gap:8px; align-items:center; background:rgba(255,255,255,.1); padding:8px 14px; border-radius:20px; font-size:12px; margin-top:10px; width:fit-content; }
 
@@ -79,8 +79,8 @@
       <p>Sumate a la red comunitaria de alquiler de herramientas y equipos.</p>
     </div>
     <div>
-      <div class="stat-pill">⭐ 4.8 calificación promedio</div><br>
-      <div class="stat-pill" style="margin-top:8px;">🔒 Pagos protegidos</div>
+      <div class="stat-pill">🔒 Pagos protegidos</div><br>
+      <div class="stat-pill" style="margin-top:8px;">🛠️ Alquileres protegidos</div>
     </div>
   </div>
 
