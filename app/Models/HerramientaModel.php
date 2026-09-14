@@ -12,7 +12,7 @@ class HerramientaModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id_usuario', 'nombre', 'precio'];
+    protected $allowedFields    = ['id_usuario', 'nombre', 'descripcion', 'precio', 'estado', 'foto_url'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -28,7 +28,14 @@ class HerramientaModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
+    protected $validationRules = [
+    'id_usuario' => 'required|is_natural_no_zero',
+    'nombre'     => 'required|min_length[3]|max_length[100]',
+    'descripcion'=> 'permit_empty|max_length[500]',
+    'precio'     => 'required|decimal|greater_than[0]',
+    'estado'     => 'permit_empty|in_list[disponible,alquilada,no_disponible]',
+    'foto_url'   => 'permit_empty|valid_url_strict',
+];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
