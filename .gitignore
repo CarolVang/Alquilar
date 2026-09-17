@@ -1,4 +1,5 @@
-.env
+﻿.env
+.env - Acceso directo.lnk
 writable/*
 !writable/index.html
 vendor/
