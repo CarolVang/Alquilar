@@ -8,3 +8,4 @@ $routes->get('login', 'Auth::login');
 $routes->get('registro', 'Auth::registro');
 $routes->get('publicar-herramienta', 'Herramientas::publicar');
 $routes->get('mis-herramientas', 'Herramientas::mis');
+$routes->get('catalogo', 'Catalogo::index');
