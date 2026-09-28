@@ -50,4 +50,19 @@ class HerramientaModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+public function getDisponibles()
+{
+    return $this->where('estado', 'disponible')->findAll();
+}
+
+    public function getCatalogoOrdenado()
+    {
+        return $this->select('herramientas.*, alquileres.fecha_fin')
+                    ->join('alquileres',
+                        'alquileres.id_herramienta = herramientas.id_herramienta AND alquileres.estado = "confirmada"',
+                        'left')
+                    ->orderBy("FIELD(herramientas.estado, 'disponible', 'no_disponible', 'alquilada')", '', false)
+                    ->orderBy('herramientas.nombre', 'ASC')
+                    ->findAll();
+    }
 }

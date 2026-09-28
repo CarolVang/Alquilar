@@ -1,4 +1,4 @@
-8<?php
+<?php
 
 use CodeIgniter\Boot;
 use Config\Paths;
