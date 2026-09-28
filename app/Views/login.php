@@ -94,12 +94,24 @@
       <div id="tab-retador" onclick="setRole('retador')">Soy Retador</div>
     </div>
 
+    <?php if (session()->getFlashdata('mensaje')) : ?>
+      <div style="background:var(--teal-100); color:var(--teal-700); border:1px solid var(--teal-600); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:14px;">
+        <?= esc(session()->getFlashdata('mensaje')) ?>
+      </div>
+    <?php endif ?>
+
+    <?php if (session()->getFlashdata('error')) : ?>
+      <div style="background:var(--danger-bg); color:var(--danger); border:1px solid var(--danger); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:14px;">
+        <?= esc(session()->getFlashdata('error')) ?>
+      </div>
+    <?php endif ?>
+
     <form id="loginForm" method="post" action="/login">
       <input type="hidden" name="rol" id="rolInput" value="cliente">
 
       <label class="field-label">Email</label>
       <div class="field-group" id="group-email">
-        <input class="field-input" type="email" name="email" placeholder="tu@email.com" required>
+        <input class="field-input" type="email" name="email" value="<?= esc(old('email')) ?>" placeholder="tu@email.com" required>
         <div class="field-error">Ingresá un email válido.</div>
       </div>
 

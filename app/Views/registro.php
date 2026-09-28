@@ -90,30 +90,36 @@
       <div id="tab-retador" onclick="setRole('retador')">Soy Retador</div>
     </div>
 
+    <?php if (session()->getFlashdata('error')) : ?>
+      <div style="background:var(--danger-bg); color:var(--danger); border:1px solid var(--danger); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:14px;">
+        <?= esc(session()->getFlashdata('error')) ?>
+      </div>
+    <?php endif ?>
+
     <form id="regForm" method="post" action="/registro">
-      <input type="hidden" name="rol" id="rolInput" value="cliente">
+      <input type="hidden" name="rol" id="rolInput" value="<?= esc(old('rol', 'cliente')) ?>">
 
       <div class="field-group" id="group-nombre">
         <label class="field-label">Nombre completo</label>
-        <input class="field-input" type="text" name="nombre" placeholder="Ej: Sofía Duarte" required minlength="2">
+        <input class="field-input" type="text" name="nombre" value="<?= esc(old('nombre')) ?>" placeholder="Ej: Sofía Duarte" required minlength="2">
         <div class="field-error">Ingresá tu nombre completo.</div>
       </div>
 
       <div class="field-group" id="group-email">
         <label class="field-label">Email</label>
-        <input class="field-input" type="email" name="email" placeholder="tu@email.com" required>
+        <input class="field-input" type="email" name="email" value="<?= esc(old('email')) ?>" placeholder="tu@email.com" required>
         <div class="field-error">Ingresá un email válido.</div>
       </div>
 
       <div class="form-row">
         <div class="field-group" id="group-telefono">
           <label class="field-label">Teléfono</label>
-          <input class="field-input" type="tel" name="telefono" placeholder="+54 9 11 ...">
+          <input class="field-input" type="tel" name="telefono" value="<?= esc(old('telefono')) ?>" placeholder="+54 9 11 ...">
           <div class="field-error">Ingresá un teléfono válido.</div>
         </div>
         <div class="field-group" id="group-dni">
           <label class="field-label">DNI</label>
-          <input class="field-input" type="text" name="dni" placeholder="00.000.000" required>
+          <input class="field-input" type="text" name="dni" value="<?= esc(old('dni')) ?>" placeholder="00.000.000" required>
           <div class="field-error">Ingresá tu DNI.</div>
         </div>
       </div>
