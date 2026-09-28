@@ -11,3 +11,5 @@ $routes->post('registro', 'Auth::attemptRegistro');
 $routes->get('logout', 'Auth::logout');
 $routes->get('publicar-herramienta', 'Herramientas::publicar');
 $routes->get('mis-herramientas', 'Herramientas::mis');
+$routes->get('catalogo', 'Catalogo::index');
+$routes->get('detalle', 'Herramienta::detalle');
