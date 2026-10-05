@@ -100,34 +100,16 @@
 </div>
 
 <div class="filters">
-  <select id="filterCategoria" onchange="applyFilters()">
-    <option value="">Todas las categorías</option>
-    <option>Herramientas</option>
-    <option>Construcción</option>
-    <option>Recreación</option>
-    <option>Jardín</option>
-    <option>Eventos</option>
-  </select>
   <select id="filterPrecio" onchange="applyFilters()">
     <option value="">Cualquier precio</option>
     <option value="1000">Hasta $1.000/día</option>
     <option value="2500">Hasta $2.500/día</option>
     <option value="99999">Más de $2.500/día</option>
   </select>
-  <div class="chip" id="chipVerificado" onclick="toggleChip(this)">✓ Solo verificados</div>
-  <div class="results-count" id="resultsCount">6 resultados</div>
+  <div class="results-count" id="resultsCount"></div>
 </div>
 
 <div class="wrap">
-
-  <!-- Barra solo para esta demo: simula los estados sin backend -->
-  <div class="dev-toolbar">
-    🔧 Vista previa de estados (para QA / diseño):
-    <button onclick="showView('cargando')">Cargando</button>
-    <button onclick="showView('resultados')">Con resultados</button>
-    <button onclick="showView('vacio')">Sin resultados</button>
-    <button onclick="showView('error')">Error</button>
-  </div>
 
   <!-- ESTADO: cargando -->
   <div class="view grid-view" id="view-cargando">
@@ -176,55 +158,47 @@
 </div>
 
 <script>
-  const ICONS = {
-    drill: '<path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.1-3.1a5 5 0 01-6.7 6.7L5 22l-2-2 9.1-9.1a5 5 0 016.7-6.7l-3.1 3.1z"/>',
-    scaffold: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/>',
-    boat: '<path d="M2 18c2 2 4 2 6 0s4-2 6 0 4 2 6 0M4 15l14-8-2 8"/>',
-    mower: '<circle cx="12" cy="15" r="5"/><path d="M12 10V4M8 4h8"/>',
-    tent: '<path d="M3 20L12 4l9 16M8 20l4-8 4 8"/>',
-    grinder: '<rect x="4" y="10" width="12" height="6" rx="1"/><path d="M16 12h4v2h-4"/>'
-  };
-  function ic(name){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`; }
+  const ICON_GENERICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="12" height="6" rx="1"/><path d="M16 12h4v2h-4"/></svg>';
 
-  // Datos de ejemplo (esto lo va a reemplazar Julián/Luz con los datos reales del Backend)
-  const TOOLS = [
-    {icon:'drill', name:'Taladro percutor Bosch', cat:'Herramientas', price:1200, rating:4.8, count:120, verificado:true},
-    {icon:'scaffold', name:'Andamio 3 cuerpos', cat:'Construcción', price:3500, rating:4.9, count:54, verificado:true},
-    {icon:'boat', name:'Bote a remo 2 plazas', cat:'Recreación', price:2800, rating:4.7, count:38, verificado:true},
-    {icon:'mower', name:'Cortadora de césped', cat:'Jardín', price:1800, rating:4.6, count:92, verificado:false},
-    {icon:'tent', name:'Carpa para eventos 6x6', cat:'Eventos', price:5200, rating:5.0, count:21, verificado:true},
-    {icon:'grinder', name:'Amoladora angular', cat:'Herramientas', price:900, rating:4.8, count:140, verificado:false},
-  ];
+  const ESTADOS = {
+    disponible: 'Disponible',
+    alquilada: 'Alquilada',
+    no_disponible: 'No disponible',
+  };
+
+  // Datos reales, provistos por el Controller (Catalogo::index -> HerramientaModel::getCatalogoOrdenado)
+  const TOOLS = <?= json_encode(array_map(static fn ($h) => [
+      'name'   => $h['nombre'],
+      'price'  => (float) $h['precio'],
+      'estado' => $h['estado'],
+      'foto'   => $h['foto_url'],
+  ], $herramientas)) ?>;
 
   function renderCards(list){
     const grid = document.getElementById('resultsGrid');
     grid.innerHTML = list.map(t => `
       <div class="p-card">
-        <div class="p-media">${ic(t.icon)}${t.verificado ? '<div class="badge-verified">✓ Verificado</div>' : ''}</div>
+        <div class="p-media">${t.foto ? `<img src="${t.foto}" alt="${t.name}" style="width:100%;height:100%;object-fit:cover;">` : ICON_GENERICO}</div>
         <div class="p-body">
-          <div class="p-cat">${t.cat}</div>
+          <div class="p-cat">${ESTADOS[t.estado] || t.estado}</div>
           <h3>${t.name}</h3>
-          <div class="rating">★ <b>${t.rating}</b> (${t.count} alquileres)</div>
-          <div class="price-row"><div class="price">$${t.price.toLocaleString('es-AR')}<span> /día</span></div><button class="rent-btn">Alquilar</button></div>
+          <div class="price-row">
+            <div class="price">$${t.price.toLocaleString('es-AR')}<span> /día</span></div>
+            <button class="rent-btn" ${t.estado !== 'disponible' ? 'disabled style="opacity:.5;cursor:not-allowed;"' : ''}>${t.estado === 'disponible' ? 'Alquilar' : 'No disponible'}</button>
+          </div>
         </div>
       </div>`).join('');
   }
 
-  function toggleChip(el){ el.classList.toggle('active'); applyFilters(); }
-
   function applyFilters(){
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
-    const cat = document.getElementById('filterCategoria').value;
     const maxPrecio = document.getElementById('filterPrecio').value;
-    const soloVerif = document.getElementById('chipVerificado').classList.contains('active');
 
     let list = TOOLS.filter(t => {
       if(q && !t.name.toLowerCase().includes(q)) return false;
-      if(cat && t.cat !== cat) return false;
       if(maxPrecio === '1000' && t.price > 1000) return false;
       if(maxPrecio === '2500' && t.price > 2500) return false;
       if(maxPrecio === '99999' && t.price <= 2500) return false;
-      if(soloVerif && !t.verificado) return false;
       return true;
     });
 
@@ -240,9 +214,7 @@
 
   function clearFilters(){
     document.getElementById('searchInput').value = '';
-    document.getElementById('filterCategoria').value = '';
     document.getElementById('filterPrecio').value = '';
-    document.getElementById('chipVerificado').classList.remove('active');
     applyFilters();
   }
 
@@ -252,8 +224,7 @@
   }
 
   // Estado inicial
-  renderCards(TOOLS);
-  showView('resultados');
+  applyFilters();
 </script>
 
 </body>
