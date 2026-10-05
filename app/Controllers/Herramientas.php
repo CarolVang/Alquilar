@@ -13,4 +13,9 @@ class Herramientas extends BaseController
     {
         return view('mis_herramientas');
     }
+
+    public function detalle()
+    {
+        return view('detalle', [], ['debug' => false]);
+    }
 }
