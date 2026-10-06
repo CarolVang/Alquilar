@@ -67,4 +67,44 @@ class AlquilerModel extends Model
 
         return $builder->countAllResults() > 0;
     }
+    
+    public function getPeriodosOcupados(int $idHerramienta): array
+    {
+        return $this->select('fecha_inicio, fecha_fin')
+                    ->where('id_herramienta', $idHerramienta)
+                    ->where('estado', 'confirmada')
+                    ->findAll();
+    }
+
+    public function crearReservaConValidacion(int $idHerramienta, int $idUsuario, string $fechaInicio, string $fechaFin): array
+    {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        $db->query(
+            'SELECT id_alquiler FROM alquileres WHERE id_herramienta = ? AND estado = "confirmada" FOR UPDATE',
+            [$idHerramienta]
+        );
+
+        if ($this->haySolapamiento($idHerramienta, $fechaInicio, $fechaFin)) {
+            $db->transRollback();
+            return ['exito' => false, 'mensaje' => 'Esas fechas ya no estan disponibles para esta herramienta.'];
+        }
+
+        $idNuevo = $this->insert([
+            'id_herramienta' => $idHerramienta,
+            'id_usuario'     => $idUsuario,
+            'fecha_inicio'   => $fechaInicio,
+            'fecha_fin'      => $fechaFin,
+            'estado'         => 'confirmada',
+        ]);
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return ['exito' => false, 'mensaje' => 'No se pudo confirmar la reserva, intenta de nuevo.'];
+        }
+
+        return ['exito' => true, 'id_alquiler' => $idNuevo];
+    }
 }
