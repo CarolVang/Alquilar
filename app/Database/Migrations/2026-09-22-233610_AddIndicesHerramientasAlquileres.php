@@ -6,7 +6,7 @@ use CodeIgniter\Database\Migration;
 
 class AddIndicesHerramientasAlquileres extends Migration
 {
-       public function up()
+    public function up()
     {
         $this->forge->addKey('estado', false, false, 'idx_estado');
         $this->forge->processIndexes('herramientas');
