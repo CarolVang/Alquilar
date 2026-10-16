@@ -7,12 +7,12 @@ use CodeIgniter\Model;
 class HerramientaModel extends Model
 {
     protected $table             = 'herramientas';
-    protected $primaryKey       = 'id_herramienta';
-    protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = ['id_usuario', 'nombre', 'descripcion', 'precio', 'estado', 'foto_url'];
+    protected $primaryKey        = 'id_herramienta';
+    protected $useAutoIncrement  = true;
+    protected $returnType        = 'array';
+    protected $useSoftDeletes    = false;
+    protected $protectFields     = true;
+    protected $allowedFields     = ['id_usuario', 'nombre', 'descripcion', 'precio', 'estado', 'foto_url'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -29,13 +29,14 @@ class HerramientaModel extends Model
 
     // Validation
     protected $validationRules = [
-    'id_usuario' => 'required|is_natural_no_zero',
-    'nombre'     => 'required|min_length[3]|max_length[100]',
-    'descripcion'=> 'permit_empty|max_length[500]',
-    'precio'     => 'required|decimal|greater_than[0]',
-    'estado'     => 'permit_empty|in_list[disponible,alquilada,no_disponible]',
-    'foto_url'   => 'permit_empty|valid_url_strict',
-];
+        'id_usuario'  => 'required|is_natural_no_zero',
+        'nombre'      => 'required|min_length[3]|max_length[100]',
+        'descripcion' => 'permit_empty|max_length[500]',
+        'precio'      => 'required|decimal|greater_than[0]',
+        'estado'      => 'permit_empty|in_list[disponible,alquilada,no_disponible]',
+        'foto_url'    => 'permit_empty|valid_url_strict',
+    ];
+
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
@@ -51,13 +52,24 @@ class HerramientaModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
+    public function getDisponibles()
+    {
+        return $this->where('estado', 'disponible')->findAll();
+    }
+
     public function getCatalogoOrdenado()
     {
         return $this->select('herramientas.*, alquileres.fecha_fin')
-                    ->join('alquileres',
+                    ->join(
+                        'alquileres',
                         'alquileres.id_herramienta = herramientas.id_herramienta AND alquileres.estado = "confirmada"',
-                        'left')
-                    ->orderBy("FIELD(herramientas.estado, 'disponible', 'no_disponible', 'alquilada')", '', false)
+                        'left'
+                    )
+                    ->orderBy(
+                        "FIELD(herramientas.estado, 'disponible', 'no_disponible', 'alquilada')",
+                        '',
+                        false
+                    )
                     ->orderBy('herramientas.nombre', 'ASC')
                     ->findAll();
     }
