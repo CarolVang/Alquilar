@@ -196,19 +196,32 @@
     spinner.style.display = 'inline-block';
     btnText.textContent = 'Publicando...';
 
-    // Simulación de respuesta del servidor (reemplazar por el submit real)
-    setTimeout(function(){
-      spinner.style.display = 'none';
-      btn.disabled = false;
-      btnText.textContent = 'Publicar herramienta';
+    fetch('/publicar-herramienta', {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+      .then(res => res.json())
+      .then(data => {
+        spinner.style.display = 'none';
+        btn.disabled = false;
+        btnText.textContent = 'Publicar herramienta';
 
-      // Para ver el ESTADO DE ÉXITO (comportamiento por defecto de esta demo):
-      form.style.display = 'none';
-      successView.style.display = 'block';
-
-      // Para ver el ESTADO DE ERROR en su lugar, comentá las 2 líneas de
-      // arriba y descomentá esta: bannerError.style.display = 'flex';
-    }, 1200);
+        if (data.ok) {
+          form.style.display = 'none';
+          successView.style.display = 'block';
+        } else {
+          bannerError.textContent = '⚠️ ' + (data.error || 'No pudimos publicar la herramienta. Revisá los datos e intentá de nuevo.');
+          bannerError.style.display = 'flex';
+        }
+      })
+      .catch(() => {
+        spinner.style.display = 'none';
+        btn.disabled = false;
+        btnText.textContent = 'Publicar herramienta';
+        bannerError.textContent = '⚠️ No pudimos conectar con el servidor. Intentá de nuevo.';
+        bannerError.style.display = 'flex';
+      });
   });
 </script>
 

@@ -91,69 +91,26 @@
 <div class="wrap">
   <h1>Mis herramientas</h1>
 
-  <!-- Barra solo para esta demo: simula los distintos estados de la pantalla -->
-  <div class="dev-toolbar">
-    🔧 Vista previa de estados (para QA / diseño):
-    <button onclick="showView('cargando')">Cargando</button>
-    <button onclick="showView('listado')">Con herramientas</button>
-    <button onclick="showView('vacio')">Vacío</button>
-    <button onclick="showView('error')">Error</button>
-  </div>
-
-  <!-- ESTADO: cargando -->
-  <div class="view grid-view" id="view-cargando">
-    <div class="skeleton-card">
-      <div class="tool-media skeleton" style="height:100px;"></div>
-      <div class="tool-body">
-        <div class="skeleton" style="height:12px; width:70%; border-radius:4px; margin-bottom:8px;"></div>
-        <div class="skeleton" style="height:10px; width:40%; border-radius:4px; margin-bottom:14px;"></div>
-        <div class="skeleton" style="height:28px; width:100%; border-radius:6px;"></div>
-      </div>
-    </div>
-    <div class="skeleton-card">
-      <div class="tool-media skeleton" style="height:100px;"></div>
-      <div class="tool-body">
-        <div class="skeleton" style="height:12px; width:70%; border-radius:4px; margin-bottom:8px;"></div>
-        <div class="skeleton" style="height:10px; width:40%; border-radius:4px; margin-bottom:14px;"></div>
-        <div class="skeleton" style="height:28px; width:100%; border-radius:6px;"></div>
-      </div>
-    </div>
-    <div class="skeleton-card">
-      <div class="tool-media skeleton" style="height:100px;"></div>
-      <div class="tool-body">
-        <div class="skeleton" style="height:12px; width:70%; border-radius:4px; margin-bottom:8px;"></div>
-        <div class="skeleton" style="height:10px; width:40%; border-radius:4px; margin-bottom:14px;"></div>
-        <div class="skeleton" style="height:28px; width:100%; border-radius:6px;"></div>
-      </div>
-    </div>
-  </div>
-
   <!-- ESTADO: con herramientas publicadas -->
   <div class="view grid-view" id="view-listado">
+    <?php foreach ($herramientas as $h) : ?>
     <div class="tool-card">
-      <div class="tool-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.1-3.1a5 5 0 01-6.7 6.7L5 22l-2-2 9.1-9.1a5 5 0 016.7-6.7l-3.1 3.1z"/></svg></div>
+      <div class="tool-media">
+        <?php if (! empty($h['foto_url'])) : ?>
+          <img src="<?= esc($h['foto_url']) ?>" alt="<?= esc($h['nombre']) ?>" style="width:100%;height:100%;object-fit:cover;">
+        <?php else : ?>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="12" height="6" rx="1"/><path d="M16 12h4v2h-4"/></svg>
+        <?php endif ?>
+      </div>
       <div class="tool-body">
-        <h3>Taladro percutor Bosch</h3>
-        <div class="tool-status">● Activo · $1.200/día</div>
+        <h3><?= esc($h['nombre']) ?></h3>
+        <div class="tool-status<?= $h['estado'] !== 'disponible' ? ' paused' : '' ?>">
+          <?= $h['estado'] === 'disponible' ? '●' : '⏸' ?> <?= esc(ucfirst($h['estado'])) ?> · $<?= number_format((float) $h['precio'], 0, ',', '.') ?>/día
+        </div>
         <div class="tool-actions"><button class="btn-edit">Editar</button><button class="btn-pause">Pausar</button></div>
       </div>
     </div>
-    <div class="tool-card">
-      <div class="tool-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/></svg></div>
-      <div class="tool-body">
-        <h3>Andamio 3 cuerpos</h3>
-        <div class="tool-status">● Activo · $3.500/día</div>
-        <div class="tool-actions"><button class="btn-edit">Editar</button><button class="btn-pause">Pausar</button></div>
-      </div>
-    </div>
-    <div class="tool-card">
-      <div class="tool-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="12" height="6" rx="1"/><path d="M16 12h4v2h-4"/></svg></div>
-      <div class="tool-body">
-        <h3>Amoladora angular</h3>
-        <div class="tool-status paused">⏸ Pausado · $900/día</div>
-        <div class="tool-actions"><button class="btn-edit">Editar</button><button class="btn-pause">Reactivar</button></div>
-      </div>
-    </div>
+    <?php endforeach ?>
     <a href="/publicar-herramienta" class="add-card">
       <div style="font-size:24px;">+</div>Publicar nueva
     </a>
@@ -182,17 +139,11 @@
 </div>
 
 <script>
-  // Esta función solo existe para esta demo visual (probar los 4 estados
-  // sin backend). Cuando Rodolfo conecte esto, el estado real va a venir
-  // de la respuesta del servidor: mientras espera la respuesta se muestra
-  // 'cargando'; si falla, 'error'; si no hay datos, 'vacio'; si hay datos,
-  // 'listado'. Este bloque de JS y la barra amarilla de arriba se borran
-  // en ese momento.
   function showView(name){
     document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
     document.getElementById('view-' + name).classList.add('on');
   }
-  showView('listado'); // estado inicial por defecto de esta demo
+  showView('<?= empty($herramientas) ? 'vacio' : 'listado' ?>');
 </script>
 
 </body>
