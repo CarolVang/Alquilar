@@ -64,6 +64,7 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   .cal-day{ aspect-ratio:1; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:600; border:1px solid var(--line); cursor:pointer; background:#fff; }
   .cal-day.free:hover{ border-color:var(--teal-600); }
   .cal-day.booked{ background:var(--danger-bg); color:var(--danger); border-color:transparent; cursor:not-allowed; }
+  .cal-day.past{ background:var(--teal-50); color:var(--line); border-color:transparent; cursor:not-allowed; }
   .cal-day.off{ visibility:hidden; }
   .cal-day.selected{ background:var(--teal-900); color:#fff; border-color:var(--teal-900); }
 
@@ -195,6 +196,7 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   // Períodos realmente ocupados (reservas confirmadas), traídos por el Controller
   // desde AlquilerModel::getPeriodosOcupados() (Luz).
   const PERIODOS_OCUPADOS = <?= json_encode($periodos_ocupados) ?>;
+  const HOY_DIA = <?= (int) $hoy->format('j') ?>; // dia del mes de hoy (el calendario siempre muestra el mes actual)
 
   function fechaDelDia(d){
     const mm = String(MES).padStart(2, '0');
@@ -207,6 +209,10 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
     return PERIODOS_OCUPADOS.some(p => fecha >= p.fecha_inicio.slice(0, 10) && fecha <= p.fecha_fin.slice(0, 10));
   }
 
+  function diaPasado(d){
+    return d < HOY_DIA;
+  }
+
   let seleccion = { inicio: null, fin: null };
 
   function buildCalendar(){
@@ -214,6 +220,10 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
     let html = dnames.map(d => `<div class="dname">${d}</div>`).join('');
     for(let i=0; i<PRIMER_DIA_SEMANA; i++){ html += `<div class="cal-day off"></div>`; }
     for(let d=1; d<=DIAS_MES; d++){
+      if(diaPasado(d)){
+        html += `<div class="cal-day past" data-day="${d}">${d}</div>`;
+        continue;
+      }
       const ocupado = diaOcupado(d);
       html += `<div class="cal-day ${ocupado ? 'booked' : 'free'}" data-day="${d}" onclick="${ocupado ? '' : `pickDay(${d})`}">${d}</div>`;
     }
