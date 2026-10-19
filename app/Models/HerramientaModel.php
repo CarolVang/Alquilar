@@ -71,6 +71,7 @@ class HerramientaModel extends Model
                         false
                     )
                     ->orderBy('herramientas.nombre', 'ASC')
+                    ->groupBy('herramientas.id_herramienta')
                     ->findAll();
     }
 }

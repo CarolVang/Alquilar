@@ -1,3 +1,12 @@
+<?php
+$mesesEs = [1=>'Enero',2=>'Febrero',3=>'Marzo',4=>'Abril',5=>'Mayo',6=>'Junio',7=>'Julio',8=>'Agosto',9=>'Septiembre',10=>'Octubre',11=>'Noviembre',12=>'Diciembre'];
+$hoy = new DateTime('now');
+$anio = (int) $hoy->format('Y');
+$mes = (int) $hoy->format('n');
+$diasEnMes = (int) $hoy->format('t');
+$primerDiaSemana = ((int) (new DateTime("$anio-$mes-01"))->format('N')) - 1; // 0 = lunes
+$nombreMes = $mesesEs[$mes] . ' ' . $anio;
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -98,42 +107,38 @@
 <div class="nav">
   <div class="logo">Alquil<span>-Ar</span></div>
   <a href="/catalogo" class="back">← Volver al catálogo</a>
-  <div class="avatar-chip">SD</div>
 </div>
 
 <div class="detail-wrap">
 
   <div class="detail-info">
     <div class="gallery-main">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/></svg>
+      <?php if (! empty($herramienta['foto_url'])) : ?>
+        <img src="<?= esc($herramienta['foto_url']) ?>" alt="<?= esc($herramienta['nombre']) ?>" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+      <?php else : ?>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/></svg>
+      <?php endif ?>
     </div>
-    <div class="gallery-thumbs"><div></div><div></div><div></div><div></div></div>
 
-    <div class="badge-verified">✓ Retador Verificado</div>
-    <h1>Andamio 3 cuerpos</h1>
-    <div class="rating">★★★★★ <b>4.9</b> · 54 alquileres</div>
-    <div class="owner-row"><div class="owner-avatar">MI</div>Publicado por <b style="color:var(--ink)">Martín I.</b> · Responde en ~1h</div>
-
-    <p class="desc">Andamio tubular de 3 cuerpos, capacidad 150kg por nivel. Ideal para trabajos de pintura, mantenimiento de fachada o refacciones de altura media. Incluye ruedas con freno y base niveladora.</p>
-
-    <div class="spec-grid">
-      <div class="spec">Categoría<b>Construcción</b></div>
-      <div class="spec">Capacidad<b>150 kg / nivel</b></div>
-      <div class="spec">Altura<b>3 cuerpos (6m)</b></div>
-      <div class="spec">Ubicación<b>A 2.3 km tuyo</b></div>
+    <h1><?= esc($herramienta['nombre']) ?></h1>
+    <div class="owner-row">
+      <div class="owner-avatar"><?= esc(strtoupper(substr($propietario['nombre'] ?? '?', 0, 2))) ?></div>
+      Publicado por <b style="color:var(--ink)"><?= esc($propietario['nombre'] ?? 'Usuario') ?></b>
     </div>
+
+    <p class="desc"><?= esc($herramienta['descripcion'] ?? '') ?></p>
   </div>
 
   <div class="booking-card">
     <h3>Elegí cuándo alquilarlo</h3>
-    <div class="price-line">$3.500 <span>/día</span></div>
+    <div class="price-line">$<?= number_format((float) $herramienta['precio'], 0, ',', '.') ?> <span>/día</span></div>
 
     <div class="avail-legend">
       <span><i style="background:#fff; border:1px solid var(--line);"></i>Disponible</span>
       <span><i style="background:var(--danger-bg); border:1px solid var(--danger);"></i>Ocupado</span>
       <span><i style="background:var(--teal-900);"></i>Seleccionado</span>
     </div>
-    <div style="font-size:11.5px; font-weight:600; margin-bottom:6px;">Septiembre 2026</div>
+    <div style="font-size:11.5px; font-weight:600; margin-bottom:6px;"><?= esc($nombreMes) ?></div>
     <div class="cal-grid" id="calGrid"></div>
 
     <div class="form-row">
@@ -169,9 +174,9 @@
     </div>
 
     <div class="summary-box" id="summaryBox">
-      <div class="summary-row"><span id="summaryDias">$3.500 × 1 día</span><span id="summarySubtotal">$3.500</span></div>
-      <div class="summary-row"><span>Tarifa de servicio</span><span id="summaryServicio">$350</span></div>
-      <div class="summary-row total"><span>Total</span><span id="summaryTotal">$3.850</span></div>
+      <div class="summary-row"><span id="summaryDias"></span><span id="summarySubtotal"></span></div>
+      <div class="summary-row"><span>Tarifa de servicio</span><span id="summaryServicio"></span></div>
+      <div class="summary-row total"><span>Total</span><span id="summaryTotal"></span></div>
     </div>
 
     <button class="reservar-btn" id="btnReservar">Reservar</button>
@@ -181,11 +186,26 @@
 </div>
 
 <script>
-  const PRECIO_DIA = 3500;
-  // Días ocupados de ejemplo (esto lo va a traer Julián/Luz desde el Backend)
-  const OCUPADOS = [5, 9, 14, 20, 26];
-  const DIAS_MES = 30; // septiembre
-  const PRIMER_DIA_SEMANA = 1; // 1 = martes (para que el 1° caiga bien alineado bajo "M")
+  const PRECIO_DIA = <?= (float) $herramienta['precio'] ?>;
+  const ANIO = <?= $anio ?>;
+  const MES = <?= $mes ?>; // 1-12
+  const DIAS_MES = <?= $diasEnMes ?>;
+  const PRIMER_DIA_SEMANA = <?= $primerDiaSemana ?>; // 0 = lunes
+
+  // Períodos realmente ocupados (reservas confirmadas), traídos por el Controller
+  // desde AlquilerModel::getPeriodosOcupados() (Luz).
+  const PERIODOS_OCUPADOS = <?= json_encode($periodos_ocupados) ?>;
+
+  function fechaDelDia(d){
+    const mm = String(MES).padStart(2, '0');
+    const dd = String(d).padStart(2, '0');
+    return `${ANIO}-${mm}-${dd}`;
+  }
+
+  function diaOcupado(d){
+    const fecha = fechaDelDia(d);
+    return PERIODOS_OCUPADOS.some(p => fecha >= p.fecha_inicio.slice(0, 10) && fecha <= p.fecha_fin.slice(0, 10));
+  }
 
   let seleccion = { inicio: null, fin: null };
 
@@ -194,7 +214,7 @@
     let html = dnames.map(d => `<div class="dname">${d}</div>`).join('');
     for(let i=0; i<PRIMER_DIA_SEMANA; i++){ html += `<div class="cal-day off"></div>`; }
     for(let d=1; d<=DIAS_MES; d++){
-      const ocupado = OCUPADOS.includes(d);
+      const ocupado = diaOcupado(d);
       html += `<div class="cal-day ${ocupado ? 'booked' : 'free'}" data-day="${d}" onclick="${ocupado ? '' : `pickDay(${d})`}">${d}</div>`;
     }
     document.getElementById('calGrid').innerHTML = html;
@@ -206,7 +226,10 @@
       seleccion = { inicio: d, fin: null };
     } else if(d > seleccion.inicio){
       // ¿el rango cruza algún día ocupado?
-      const cruzaOcupado = OCUPADOS.some(o => o > seleccion.inicio && o < d);
+      let cruzaOcupado = false;
+      for(let o = seleccion.inicio + 1; o < d; o++){
+        if(diaOcupado(o)){ cruzaOcupado = true; break; }
+      }
       if(cruzaOcupado){
         seleccion = { inicio: d, fin: null };
       } else {
@@ -229,8 +252,8 @@
         el.classList.add('selected'); el.classList.remove('free');
       }
     });
-    document.getElementById('fechaInicio').value = seleccion.inicio ? `${seleccion.inicio} de septiembre` : '';
-    document.getElementById('fechaFin').value = seleccion.fin ? `${seleccion.fin} de septiembre` : '';
+    document.getElementById('fechaInicio').value = seleccion.inicio ? `${seleccion.inicio} de <?= esc($nombreMes) ?>` : '';
+    document.getElementById('fechaFin').value = seleccion.fin ? `${seleccion.fin} de <?= esc($nombreMes) ?>` : '';
     updateSummary();
   }
 
@@ -273,8 +296,15 @@
       return;
     }
 
-    // Acá se conecta el envío real al Backend (Julián/Luz).
-    alert('¡Reserva enviada! (simulación — falta conectar con el Backend)');
+    const fechaInicio = `${fechaDelDia(seleccion.inicio)} ${hRetiro}:00`;
+    const fechaFin = `${fechaDelDia(seleccion.fin)} ${hDevol}:00`;
+
+    const params = new URLSearchParams({
+      id_herramienta: <?= (int) $herramienta['id_herramienta'] ?>,
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
+    });
+    window.location.href = '/confirmacion?' + params.toString();
   });
 
   buildCalendar();

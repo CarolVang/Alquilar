@@ -168,6 +168,7 @@
 
   // Datos reales, provistos por el Controller (Catalogo::index -> HerramientaModel::getCatalogoOrdenado)
   const TOOLS = <?= json_encode(array_map(static fn ($h) => [
+      'id'     => (int) $h['id_herramienta'],
       'name'   => $h['nombre'],
       'price'  => (float) $h['precio'],
       'estado' => $h['estado'],
@@ -184,7 +185,9 @@
           <h3>${t.name}</h3>
           <div class="price-row">
             <div class="price">$${t.price.toLocaleString('es-AR')}<span> /día</span></div>
-            <button class="rent-btn" ${t.estado !== 'disponible' ? 'disabled style="opacity:.5;cursor:not-allowed;"' : ''}>${t.estado === 'disponible' ? 'Alquilar' : 'No disponible'}</button>
+            ${t.estado === 'disponible'
+              ? `<a class="rent-btn" href="/detalle/${t.id}" style="text-decoration:none;display:inline-block;">Alquilar</a>`
+              : `<button class="rent-btn" disabled style="opacity:.5;cursor:not-allowed;">No disponible</button>`}
           </div>
         </div>
       </div>`).join('');
