@@ -1,3 +1,16 @@
+<?php
+$diasEs = ['Mon'=>'Lun','Tue'=>'Mar','Wed'=>'Mié','Thu'=>'Jue','Fri'=>'Vie','Sat'=>'Sáb','Sun'=>'Dom'];
+$mesesEs = [1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',5=>'mayo',6=>'junio',7=>'julio',8=>'agosto',9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre'];
+function formatearFecha(string $fecha, array $diasEs, array $mesesEs): string
+{
+    $dt = new DateTime($fecha);
+    return $diasEs[$dt->format('D')] . ' ' . (int) $dt->format('j') . ' de ' . $mesesEs[(int) $dt->format('n')];
+}
+$inicioFmt = formatearFecha($fecha_inicio, $diasEs, $mesesEs);
+$finFmt = formatearFecha($fecha_fin, $diasEs, $mesesEs);
+$horaRetiro = (new DateTime($fecha_inicio))->format('H:i');
+$horaDevolucion = (new DateTime($fecha_fin))->format('H:i');
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -81,18 +94,10 @@
 
 <div class="nav">
   <div class="logo">Alquil<span>-Ar</span></div>
-  <a href="/detalle" class="back">← Volver / modificar</a>
+  <a href="/detalle/<?= (int) $herramienta['id_herramienta'] ?>" class="back">← Volver / modificar</a>
 </div>
 
 <div class="wrap">
-
-  <!-- Barra solo para esta demo: simula los estados sin backend -->
-  <div class="dev-toolbar">
-    🔧 Vista previa de estados:
-    <button onclick="showView('resumen')">Resumen</button>
-    <button onclick="showView('exito')">Éxito</button>
-    <button onclick="showView('error')">Error</button>
-  </div>
 
   <!-- ESTADO: Resumen (antes de confirmar) -->
   <div class="view on" id="view-resumen">
@@ -100,35 +105,47 @@
 
     <div class="card">
       <div class="tool-row">
-        <div class="tool-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/></svg></div>
+        <div class="tool-media">
+          <?php if (! empty($herramienta['foto_url'])) : ?>
+            <img src="<?= esc($herramienta['foto_url']) ?>" alt="<?= esc($herramienta['nombre']) ?>" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
+          <?php else : ?>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/></svg>
+          <?php endif ?>
+        </div>
         <div>
-          <div class="tool-name">Andamio 3 cuerpos</div>
-          <div class="tool-owner">Publicado por Martín I.</div>
+          <div class="tool-name"><?= esc($herramienta['nombre']) ?></div>
+          <div class="tool-owner">Publicado por <?= esc($propietario['nombre'] ?? 'Usuario') ?></div>
         </div>
       </div>
 
       <div class="detail-rows">
-        <div class="detail-row"><span>Fecha de inicio</span><span>Jue 3 de septiembre</span></div>
-        <div class="detail-row"><span>Fecha de fin</span><span>Vie 4 de septiembre</span></div>
-        <div class="detail-row"><span>Hora de retiro</span><span>09:00</span></div>
-        <div class="detail-row"><span>Hora de devolución</span><span>18:00</span></div>
+        <div class="detail-row"><span>Fecha de inicio</span><span><?= esc($inicioFmt) ?></span></div>
+        <div class="detail-row"><span>Fecha de fin</span><span><?= esc($finFmt) ?></span></div>
+        <div class="detail-row"><span>Hora de retiro</span><span><?= esc($horaRetiro) ?></span></div>
+        <div class="detail-row"><span>Hora de devolución</span><span><?= esc($horaDevolucion) ?></span></div>
       </div>
     </div>
 
     <div class="card">
       <h3 style="font-size:13.5px; margin:0 0 10px;">Precio estimado</h3>
       <div class="summary-box">
-        <div class="summary-row"><span>$3.500 × 2 días</span><span>$7.000</span></div>
-        <div class="summary-row"><span>Tarifa de servicio</span><span>$700</span></div>
-        <div class="summary-row total"><span>Total</span><span>$7.700</span></div>
+        <div class="summary-row"><span>$<?= number_format((float) $herramienta['precio'], 0, ',', '.') ?> × <?= $dias ?> <?= $dias === 1 ? 'día' : 'días' ?></span><span>$<?= number_format($subtotal, 0, ',', '.') ?></span></div>
+        <div class="summary-row"><span>Tarifa de servicio</span><span>$<?= number_format($servicio, 0, ',', '.') ?></span></div>
+        <div class="summary-row total"><span>Total</span><span>$<?= number_format($total, 0, ',', '.') ?></span></div>
       </div>
     </div>
+
+    <?php if (session()->getFlashdata('error')) : ?>
+      <div class="toast" style="display:flex; background:var(--danger-bg); color:var(--danger); border-radius:8px; padding:10px 12px; font-size:12px; margin-bottom:12px;">
+        ⚠️ <?= esc(session()->getFlashdata('error')) ?>
+      </div>
+    <?php endif ?>
 
     <button class="btn btn-confirm" id="btnConfirmar">
       <span class="spinner" id="spinner"></span>
       <span id="btnText">Confirmar reserva</span>
     </button>
-    <a href="/detalle" class="btn btn-back" style="text-decoration:none;">Volver y modificar</a>
+    <a href="/detalle/<?= (int) $herramienta['id_herramienta'] ?>" class="btn btn-back" style="text-decoration:none;">Volver y modificar</a>
   </div>
 
   <!-- ESTADO: Éxito -->
@@ -138,14 +155,13 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
       </div>
       <h2>¡Reserva confirmada!</h2>
-      <p>Martín va a coordinar el retiro con vos. Te enviamos los detalles a tu email.</p>
+      <p><?= esc($propietario['nombre'] ?? 'El retador') ?> va a coordinar el retiro con vos.</p>
       <div class="confirm-card">
-        <div class="confirm-row"><span>Herramienta</span><b>Andamio 3 cuerpos</b></div>
-        <div class="confirm-row"><span>Fechas</span><b>3 al 4 de sept.</b></div>
-        <div class="confirm-row"><span>Total pagado</span><b>$7.700</b></div>
-        <div class="confirm-row"><span>N° de reserva</span><b>#A-10452</b></div>
+        <div class="confirm-row"><span>Herramienta</span><b><?= esc($herramienta['nombre']) ?></b></div>
+        <div class="confirm-row"><span>Fechas</span><b><?= esc($inicioFmt) ?> al <?= esc($finFmt) ?></b></div>
+        <div class="confirm-row"><span>Total</span><b id="exitoTotal">$<?= number_format($total, 0, ',', '.') ?></b></div>
+        <div class="confirm-row"><span>N° de reserva</span><b id="exitoNumero">—</b></div>
       </div>
-      <a href="/mis-reservas" class="btn btn-confirm" style="text-decoration:none; display:flex;">Ver mis reservas</a>
     </div>
   </div>
 
@@ -156,7 +172,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
       </div>
       <h2>No pudimos confirmar tu reserva</h2>
-      <p>Puede que esas fechas se hayan ocupado justo ahora, o hubo un problema de conexión. Probá de nuevo.</p>
+      <p id="errorMensaje">Puede que esas fechas se hayan ocupado justo ahora, o hubo un problema de conexión. Probá de nuevo.</p>
       <button class="btn btn-confirm" onclick="showView('resumen')">Volver a intentar</button>
     </div>
   </div>
@@ -178,13 +194,36 @@
     spinner.style.display = 'inline-block';
     btnText.textContent = 'Confirmando...';
 
-    // Simulación de respuesta del servidor (acá se conecta el envío real al Backend).
-    setTimeout(function(){
-      spinner.style.display = 'none';
-      btn.disabled = false;
-      btnText.textContent = 'Confirmar reserva';
-      showView('exito'); // por defecto esta demo muestra éxito; cambiar a showView('error') para ver ese caso
-    }, 1200);
+    fetch('/reservar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+      body: new URLSearchParams({
+        id_herramienta: <?= (int) $id_herramienta ?>,
+        fecha_inicio: <?= json_encode($fecha_inicio) ?>,
+        fecha_fin: <?= json_encode($fecha_fin) ?>,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        spinner.style.display = 'none';
+        btn.disabled = false;
+        btnText.textContent = 'Confirmar reserva';
+
+        if (data.exito) {
+          document.getElementById('exitoNumero').textContent = '#' + data.id_alquiler;
+          showView('exito');
+        } else {
+          document.getElementById('errorMensaje').textContent = data.mensaje || 'Hubo un problema de conexión. Probá de nuevo.';
+          showView('error');
+        }
+      })
+      .catch(() => {
+        spinner.style.display = 'none';
+        btn.disabled = false;
+        btnText.textContent = 'Confirmar reserva';
+        document.getElementById('errorMensaje').textContent = 'Hubo un problema de conexión. Probá de nuevo.';
+        showView('error');
+      });
   });
 </script>
 

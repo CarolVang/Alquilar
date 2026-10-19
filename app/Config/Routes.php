@@ -19,8 +19,8 @@ $routes->post('publicar-herramienta', 'Herramientas::crear');
 $routes->get('mis-herramientas', 'Herramientas::mis');
 $routes->get('catalogo', 'Catalogo::index');
 
-$routes->get('detalle', 'Herramienta::detalle');
-$routes->get('confirmacion', 'Reserva::confirmacion');
+$routes->get('detalle/(:num)', 'Herramientas::detalle/$1');
 
-$routes->get('detalle', 'Herramientas::detalle');
+$routes->get('confirmacion', 'Reserva::confirmacion');
+$routes->post('reservar', 'Reserva::confirmar');
 

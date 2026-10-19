@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 
+use App\Models\AlquilerModel;
 use App\Models\HerramientaModel;
+use App\Models\UsuarioModel;
 
 class Herramientas extends BaseController
 {
@@ -57,8 +59,21 @@ class Herramientas extends BaseController
         return view('mis_herramientas', ['herramientas' => $herramientas]);
     }
 
-    public function detalle()
+    public function detalle($id)
     {
-        return view('detalle', [], ['debug' => false]);
+        $herramienta = (new HerramientaModel())->find($id);
+
+        if (! $herramienta) {
+            return redirect()->to('/catalogo')->with('error', 'Esa herramienta no existe o ya no está disponible.');
+        }
+
+        $propietario = (new UsuarioModel())->find($herramienta['id_usuario']);
+        $periodosOcupados = (new AlquilerModel())->getPeriodosOcupados((int) $id);
+
+        return view('detalle', [
+            'herramienta'       => $herramienta,
+            'propietario'       => $propietario,
+            'periodos_ocupados' => $periodosOcupados,
+        ], ['debug' => false]);
     }
 }
