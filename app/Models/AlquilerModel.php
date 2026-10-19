@@ -12,7 +12,7 @@ class AlquilerModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id_herramienta', 'id_usuario', 'fecha_inicio', 'fecha_fin', 'estado'];
+    protected $allowedFields    = ['id_herramienta', 'id_usuario', 'fecha_inicio', 'fecha_fin', 'estado', 'precio_total'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -34,6 +34,7 @@ class AlquilerModel extends Model
         'fecha_inicio'    => 'required|valid_date[Y-m-d H:i:s]',
         'fecha_fin'       => 'required|valid_date[Y-m-d H:i:s]',
         'estado'          => 'required|in_list[confirmada,retirada,devuelta,cancelada]',
+        'precio_total'    => 'required|decimal|greater_than[0]',
     ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
@@ -76,7 +77,7 @@ class AlquilerModel extends Model
                     ->findAll();
     }
 
-    public function crearReservaConValidacion(int $idHerramienta, int $idUsuario, string $fechaInicio, string $fechaFin): array
+    public function crearReservaConValidacion(int $idHerramienta, int $idUsuario, string $fechaInicio, string $fechaFin, float $precioTotal): array
     {
         $db = \Config\Database::connect();
         $db->transStart();
@@ -97,6 +98,7 @@ class AlquilerModel extends Model
             'fecha_inicio'   => $fechaInicio,
             'fecha_fin'      => $fechaFin,
             'estado'         => 'confirmada',
+            'precio_total'   => $precioTotal,
         ]);
 
         $db->transComplete();
