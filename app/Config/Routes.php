@@ -11,3 +11,4 @@ $routes->get('mis-herramientas', 'Herramientas::mis');
 $routes->get('catalogo', 'Catalogo::index');
 $routes->get('detalle', 'Herramienta::detalle');
 $routes->get('confirmacion', 'Reserva::confirmacion');
+   $routes->get('pago', 'Pago::index');

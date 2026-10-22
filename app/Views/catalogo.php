@@ -82,6 +82,7 @@
   .view{ display:none; }
   .view.on{ display:block; }
   .view.on.grid-view{ display:grid; }
+a.rent-btn{text-decoration:none;display:inline-block}
 </style>
 </head>
 <body>
@@ -188,12 +189,12 @@
 
   // Datos de ejemplo (esto lo va a reemplazar Julián/Luz con los datos reales del Backend)
   const TOOLS = [
-    {icon:'drill', name:'Taladro percutor Bosch', cat:'Herramientas', price:1200, rating:4.8, count:120, verificado:true},
-    {icon:'scaffold', name:'Andamio 3 cuerpos', cat:'Construcción', price:3500, rating:4.9, count:54, verificado:true},
-    {icon:'boat', name:'Bote a remo 2 plazas', cat:'Recreación', price:2800, rating:4.7, count:38, verificado:true},
-    {icon:'mower', name:'Cortadora de césped', cat:'Jardín', price:1800, rating:4.6, count:92, verificado:false},
-    {icon:'tent', name:'Carpa para eventos 6x6', cat:'Eventos', price:5200, rating:5.0, count:21, verificado:true},
-    {icon:'grinder', name:'Amoladora angular', cat:'Herramientas', price:900, rating:4.8, count:140, verificado:false},
+    {id:1, icon:'drill', name:'Taladro percutor Bosch', cat:'Herramientas', price:1200, rating:4.8, count:120, verificado:true},
+    {id:2, icon:'scaffold', name:'Andamio 3 cuerpos', cat:'Construcción', price:3500, rating:4.9, count:54, verificado:true},
+    {id:3, icon:'boat', name:'Bote a remo 2 plazas', cat:'Recreación', price:2800, rating:4.7, count:38, verificado:true},
+    {id:4, icon:'mower', name:'Cortadora de césped', cat:'Jardín', price:1800, rating:4.6, count:92, verificado:false},
+    {id:5, icon:'tent', name:'Carpa para eventos 6x6', cat:'Eventos', price:5200, rating:5.0, count:21, verificado:true},
+    {id:6, icon:'grinder', name:'Amoladora angular', cat:'Herramientas', price:900, rating:4.8, count:140, verificado:false},
   ];
 
   function renderCards(list){
@@ -205,7 +206,7 @@
           <div class="p-cat">${t.cat}</div>
           <h3>${t.name}</h3>
           <div class="rating">★ <b>${t.rating}</b> (${t.count} alquileres)</div>
-          <div class="price-row"><div class="price">$${t.price.toLocaleString('es-AR')}<span> /día</span></div><button class="rent-btn">Alquilar</button></div>
+          <div class="price-row"><div class="price">$${t.price.toLocaleString('es-AR')}<span> /día</span></div><a class="rent-btn" href="detalle?id=${t.id}">Alquilar</a></div>
         </div>
       </div>`).join('');
   }

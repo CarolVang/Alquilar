@@ -75,13 +75,19 @@
   .error-circle svg{ width:30px; height:30px; }
   .error-view h2{ font-size:19px; margin:0 0 6px; color:var(--danger); }
   .error-view p{ color:#8a3d2e; font-size:13px; margin:0 0 22px; }
+
+.nf-lite a{color:var(--teal-600);font-weight:600}
+.btn-confirm,.btn-back{text-decoration:none}
+
+.summary-box{display:block}
+.summary-box.on{display:block}
 </style>
 </head>
 <body>
 
 <div class="nav">
   <div class="logo">Alquil<span>-Ar</span></div>
-  <a href="/detalle" class="back">← Volver / modificar</a>
+  <a href="detalle" class="back" id="backLink">← Volver / modificar</a>
 </div>
 
 <div class="wrap">
@@ -90,8 +96,8 @@
   <div class="dev-toolbar">
     🔧 Vista previa de estados:
     <button onclick="showView('resumen')">Resumen</button>
-    <button onclick="showView('exito')">Éxito</button>
     <button onclick="showView('error')">Error</button>
+    <button onclick="showView('vacio')">Sin reserva</button>
   </div>
 
   <!-- ESTADO: Resumen (antes de confirmar) -->
@@ -100,52 +106,38 @@
 
     <div class="card">
       <div class="tool-row">
-        <div class="tool-media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/></svg></div>
+        <div class="tool-media" id="cIcon"></div>
         <div>
-          <div class="tool-name">Andamio 3 cuerpos</div>
-          <div class="tool-owner">Publicado por Martín I.</div>
+          <div class="tool-name" id="cName">—</div>
+          <div class="tool-owner" id="cOwner"></div>
         </div>
       </div>
-
       <div class="detail-rows">
-        <div class="detail-row"><span>Fecha de inicio</span><span>Jue 3 de septiembre</span></div>
-        <div class="detail-row"><span>Fecha de fin</span><span>Vie 4 de septiembre</span></div>
-        <div class="detail-row"><span>Hora de retiro</span><span>09:00</span></div>
-        <div class="detail-row"><span>Hora de devolución</span><span>18:00</span></div>
+        <div class="detail-row"><span>Fecha de inicio</span><span id="cInicio">—</span></div>
+        <div class="detail-row"><span>Fecha de fin</span><span id="cFin">—</span></div>
+        <div class="detail-row"><span>Hora de retiro</span><span id="cRetiro">—</span></div>
+        <div class="detail-row"><span>Hora de devolución</span><span id="cDevolucion">—</span></div>
       </div>
     </div>
 
     <div class="card">
       <h3 style="font-size:13.5px; margin:0 0 10px;">Precio estimado</h3>
-      <div class="summary-box">
-        <div class="summary-row"><span>$3.500 × 2 días</span><span>$7.000</span></div>
-        <div class="summary-row"><span>Tarifa de servicio</span><span>$700</span></div>
-        <div class="summary-row total"><span>Total</span><span>$7.700</span></div>
-      </div>
+      <div class="summary-box" id="priceBox"></div>
     </div>
 
-    <button class="btn btn-confirm" id="btnConfirmar">
+    <button class="btn btn-confirm" id="btnConfirmar" type="button">
       <span class="spinner" id="spinner"></span>
-      <span id="btnText">Confirmar reserva</span>
+      <span id="btnText">Confirmar y pagar</span>
     </button>
-    <a href="/detalle" class="btn btn-back" style="text-decoration:none;">Volver y modificar</a>
+    <a href="detalle" class="btn btn-back" id="btnVolver">Volver y modificar</a>
   </div>
 
-  <!-- ESTADO: Éxito -->
-  <div class="view" id="view-exito">
-    <div class="success-view">
-      <div class="check-circle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
-      </div>
-      <h2>¡Reserva confirmada!</h2>
-      <p>Martín va a coordinar el retiro con vos. Te enviamos los detalles a tu email.</p>
-      <div class="confirm-card">
-        <div class="confirm-row"><span>Herramienta</span><b>Andamio 3 cuerpos</b></div>
-        <div class="confirm-row"><span>Fechas</span><b>3 al 4 de sept.</b></div>
-        <div class="confirm-row"><span>Total pagado</span><b>$7.700</b></div>
-        <div class="confirm-row"><span>N° de reserva</span><b>#A-10452</b></div>
-      </div>
-      <a href="/mis-reservas" class="btn btn-confirm" style="text-decoration:none; display:flex;">Ver mis reservas</a>
+  <!-- ESTADO: Sin reserva en curso -->
+  <div class="view" id="view-vacio">
+    <div class="error-view" style="padding:40px 10px;">
+      <h2 style="font-size:19px;margin:0 0 6px;">No hay una reserva en curso</h2>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 20px;">Elegí una herramienta y un período para ver el resumen acá.</p>
+      <a href="catalogo" class="btn btn-confirm">Ir al catálogo</a>
     </div>
   </div>
 
@@ -156,36 +148,169 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
       </div>
       <h2>No pudimos confirmar tu reserva</h2>
-      <p>Puede que esas fechas se hayan ocupado justo ahora, o hubo un problema de conexión. Probá de nuevo.</p>
-      <button class="btn btn-confirm" onclick="showView('resumen')">Volver a intentar</button>
+      <p id="errMsg">Hubo un problema. Probá de nuevo.</p>
+      <a href="detalle" class="btn btn-confirm" id="btnErrVolver">Volver y elegir otro período</a>
     </div>
   </div>
 
 </div>
 
 <script>
-  function showView(name){
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
-    document.getElementById('view-' + name).classList.add('on');
+
+/* ===== Utilidades compartidas de Alquil-Ar (misma copia en cada pantalla) =====
+   Los datos de TOOLS y las reservas de ejemplo los va a reemplazar el Backend. */
+var AR = (function(){
+  var SERVICIO = 0.10, JORNADA_HS = 8, MAX_DIAS = 30;
+  var ICONS = {
+    drill:'<path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.1-3.1a5 5 0 01-6.7 6.7L5 22l-2-2 9.1-9.1a5 5 0 016.7-6.7l-3.1 3.1z"/>',
+    scaffold:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/>',
+    boat:'<path d="M2 18c2 2 4 2 6 0s4-2 6 0 4 2 6 0M4 15l14-8-2 8"/>',
+    mower:'<circle cx="12" cy="15" r="5"/><path d="M12 10V4M8 4h8"/>',
+    tent:'<path d="M3 20L12 4l9 16M8 20l4-8 4 8"/>',
+    grinder:'<rect x="4" y="10" width="12" height="6" rx="1"/><path d="M16 12h4v2h-4"/>'
+  };
+  var TOOLS = [
+    {id:1,icon:'drill',name:'Taladro percutor Bosch',cat:'Herramientas',price:1200,rating:4.8,count:120,verificado:true,owner:'Martín I.',cap:'Mandril de 13 mm',det:'Con maletín y set de mechas',desc:'Taladro percutor de 750 W, ideal para hormigón, ladrillo y madera. Incluye maletín y set de mechas.',ocupados:[4,8,15,22]},
+    {id:2,icon:'scaffold',name:'Andamio 3 cuerpos',cat:'Construcción',price:3500,rating:4.9,count:54,verificado:true,owner:'Martín I.',cap:'150 kg por nivel',det:'3 cuerpos (6 m de altura)',desc:'Andamio tubular de 3 cuerpos. Ideal para pintura, mantenimiento de fachada o refacciones de altura media. Incluye ruedas con freno y base niveladora.',ocupados:[5,9,14,20,26]},
+    {id:3,icon:'boat',name:'Bote a remo 2 plazas',cat:'Recreación',price:2800,rating:4.7,count:38,verificado:true,owner:'Lucía P.',cap:'2 personas',det:'Incluye remos y chalecos',desc:'Bote a remo para dos personas, perfecto para pasear por la laguna. Incluye remos y chalecos salvavidas.',ocupados:[6,7,13,21]},
+    {id:4,icon:'mower',name:'Cortadora de césped',cat:'Jardín',price:1800,rating:4.6,count:92,verificado:false,owner:'Diego M.',cap:'Corte de 46 cm',det:'Motor a nafta',desc:'Cortadora de césped a nafta con bolsa recolectora. Se entrega con el tanque lleno.',ocupados:[3,10,17,24]},
+    {id:5,icon:'tent',name:'Carpa para eventos 6x6',cat:'Eventos',price:5200,rating:5.0,count:21,verificado:true,owner:'Ana L.',cap:'Hasta 30 personas',det:'Incluye parantes y lona',desc:'Carpa de 6x6 metros para cumpleaños, ferias y eventos al aire libre. Incluye estructura, lona y estacas.',ocupados:[11,12,18,25,27]},
+    {id:6,icon:'grinder',name:'Amoladora angular',cat:'Herramientas',price:900,rating:4.8,count:140,verificado:false,owner:'Diego M.',cap:'Disco de 115 mm',det:'Incluye 3 discos',desc:'Amoladora angular de 850 W con protector y empuñadura lateral. Incluye 3 discos de corte.',ocupados:[2,9,16,23,30]}
+  ];
+  function pad(n){ return (n<10?'0':'')+n; }
+  function iso(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function parseISO(s){ var p=String(s||'').split('-'); if(p.length!==3) return new Date(NaN); return new Date(+p[0],+p[1]-1,+p[2]); }
+  function hoyISO(){ return iso(new Date()); }
+  function addDays(n){ var t=new Date(); return iso(new Date(t.getFullYear(),t.getMonth(),t.getDate()+n)); }
+  function horas(h){ var p=String(h||'').split(':'); if(p.length<2||isNaN(+p[0])||isNaN(+p[1])) return NaN; return +p[0]+(+p[1])/60; }
+  function fmt(n){ return '$'+Math.round(n).toLocaleString('es-AR'); }
+  function fechaCorta(s){ return parseISO(s).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'}); }
+  function tool(id){ for(var i=0;i<TOOLS.length;i++){ if(TOOLS[i].id===id) return TOOLS[i]; } return null; }
+  function icon(n){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[n]||ICONS.drill)+'</svg>'; }
+  function ocupado(t, s){ return t.ocupados.indexOf(parseISO(s).getDate())>-1; }
+  function rangoOcupado(t, a, b){
+    var d=parseISO(a), fin=parseISO(b);
+    while(d<=fin){ if(ocupado(t, iso(d))) return true; d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1); }
+    return false;
   }
+  /* Regla de precio (la misma tiene que implementar el Backend):
+     - 1 día: se cobra por hora = precio del día / 8 hs x horas, con tope del precio del día.
+     - 2 días o más: precio del día x cantidad de días.
+     - Tarifa de servicio: 10 % del subtotal. Todo redondeado al peso. Máximo 30 días. */
+  function calcularPrecio(o){
+    function err(m, campo, incompleto){ return {ok:false, error:m, campo:campo||null, incompleto:!!incompleto}; }
+    if(!o || !(o.precioDia>0)) return err('No pudimos leer el precio de la herramienta.');
+    if(!o.inicio) return err('Elegí la fecha de inicio.','inicio',true);
+    if(!o.fin) return err('Elegí la fecha de fin (o tocá otra vez el mismo día).','fin',true);
+    var a=parseISO(o.inicio), b=parseISO(o.fin);
+    if(isNaN(a)||isNaN(b)) return err('Las fechas elegidas no son válidas.','inicio');
+    if(b<a) return err('La fecha de fin no puede ser anterior a la de inicio.','fin');
+    var dias=Math.round((b-a)/86400000)+1;
+    if(dias>MAX_DIAS) return err('El alquiler máximo es de '+MAX_DIAS+' días.','fin');
+    var r={ok:true,dias:dias,precioDia:o.precioDia};
+    if(dias===1){
+      if(!o.retiro||!o.devolucion) return err('Elegí la hora de retiro y la de devolución.','retiro',true);
+      var h=horas(o.devolucion)-horas(o.retiro);
+      if(isNaN(h)) return err('Los horarios elegidos no son válidos.','retiro');
+      if(h<=0) return err('La hora de devolución tiene que ser posterior a la de retiro.','devolucion');
+      r.tipo='horas'; r.cantidad=h; r.tarifa=o.precioDia/JORNADA_HS;
+      var bruto=Math.round(r.tarifa*h);
+      r.tope=bruto>o.precioDia; r.subtotal=Math.min(bruto,o.precioDia);
+    } else {
+      r.tipo='dias'; r.cantidad=dias; r.tarifa=o.precioDia; r.tope=false; r.subtotal=o.precioDia*dias;
+    }
+    r.servicio=Math.round(r.subtotal*SERVICIO);
+    r.total=r.subtotal+r.servicio;
+    return r;
+  }
+  function formula(r){ /* texto de la fórmula para mostrar en pantalla */
+    if(r.tipo==='dias') return fmt(r.tarifa)+' por día × '+r.cantidad+(r.cantidad===1?' día':' días');
+    var hs=(Math.round(r.cantidad*10)/10).toString().replace('.',',');
+    return fmt(r.tarifa)+' por hora × '+hs+(r.cantidad===1?' hora':' horas');
+  }
+  function ls(k,v){
+    try{
+      if(v===undefined){ var x=localStorage.getItem(k); return x?JSON.parse(x):null; }
+      if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,JSON.stringify(v));
+      return true;
+    }catch(e){ return v===undefined?null:false; }
+  }
+  function rol(){ try{ return localStorage.getItem('alquilar_rol'); }catch(e){ return null; } }
+  function sembrar(tipo){
+    var items = tipo==='reservas' ? [
+      {id:'A-10452',toolId:1,owner:'Martín I.',inicio:addDays(3),fin:addDays(3),retiro:'09:00',devolucion:'13:00',estado:'confirmada'},
+      {id:'A-10417',toolId:3,owner:'Lucía P.',inicio:addDays(-1),fin:addDays(1),retiro:'10:00',devolucion:'18:00',estado:'retirada'},
+      {id:'A-10211',toolId:4,owner:'Diego M.',inicio:addDays(-20),fin:addDays(-20),retiro:'09:00',devolucion:'17:00',estado:'devuelta'},
+      {id:'A-10105',toolId:6,owner:'Diego M.',inicio:addDays(-35),fin:addDays(-34),retiro:'09:00',devolucion:'18:00',estado:'devuelta'},
+      {id:'A-10190',toolId:5,owner:'Ana L.',inicio:addDays(10),fin:addDays(10),retiro:'08:00',devolucion:'20:00',estado:'cancelada'}
+    ] : [
+      {id:'A-10452',toolId:2,cliente:'Sofía D.',tel:'+54 9 11 2345-6789',inicio:addDays(2),fin:addDays(3),retiro:'09:00',devolucion:'18:00',estado:'confirmada'},
+      {id:'A-10388',toolId:1,cliente:'Camila R.',tel:'+54 9 11 5555-0101',inicio:addDays(-1),fin:addDays(-1),retiro:'09:00',devolucion:'13:00',estado:'retirada'},
+      {id:'A-10301',toolId:2,cliente:'Diego M.',tel:'+54 9 11 4444-0202',inicio:addDays(-12),fin:addDays(-10),retiro:'08:00',devolucion:'18:00',estado:'devuelta'},
+      {id:'A-10277',toolId:1,cliente:'Ana L.',tel:'+54 9 11 3333-0303',inicio:addDays(6),fin:addDays(6),retiro:'14:00',devolucion:'18:00',estado:'cancelada'}
+    ];
+    return items.map(function(x){
+      var t=tool(x.toolId); x.tool=t.name; x.icon=t.icon; x.precioDia=t.price;
+      var c=calcularPrecio({precioDia:t.price,inicio:x.inicio,fin:x.fin,retiro:x.retiro,devolucion:x.devolucion});
+      x.subtotal=c.subtotal; x.servicio=c.servicio; x.total=c.total; return x;
+    });
+  }
+  function lista(tipo){
+    var k = tipo==='reservas' ? 'alquilar_reservas' : 'alquilar_alquileres';
+    var l = ls(k);
+    if(!l){ l = sembrar(tipo); ls(k,l); }
+    return l;
+  }
+  function guardar(tipo,l){ return ls(tipo==='reservas'?'alquilar_reservas':'alquilar_alquileres', l); }
+  var ESTADOS = {confirmada:['Confirmada','ok'],retirada:['En uso','warn'],devuelta:['Devuelta','gray'],cancelada:['Cancelada','bad']};
+  return {TOOLS:TOOLS,tool:tool,icon:icon,iso:iso,parseISO:parseISO,hoyISO:hoyISO,fmt:fmt,fechaCorta:fechaCorta,
+          ocupado:ocupado,rangoOcupado:rangoOcupado,calcularPrecio:calcularPrecio,formula:formula,
+          ls:ls,rol:rol,lista:lista,guardar:guardar,ESTADOS:ESTADOS,SERVICIO:SERVICIO,JORNADA_HS:JORNADA_HS,MAX_DIAS:MAX_DIAS};
+})();
 
-  document.getElementById('btnConfirmar').addEventListener('click', function(){
-    const btn = this;
-    const spinner = document.getElementById('spinner');
-    const btnText = document.getElementById('btnText');
+(function(){
+  function $(i){ return document.getElementById(i); }
+  window.showView = function(n){
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+    $('view-' + n).classList.add('on');
+  };
+  function falla(msg){ $('errMsg').textContent = msg; showView('error'); }
 
-    btn.disabled = true;
-    spinner.style.display = 'inline-block';
-    btnText.textContent = 'Confirmando...';
+  var data = AR.ls('alquilar_reserva');
+  var tool = data ? AR.tool(data.toolId) : null;
+  if(!data || !tool){ showView('vacio'); return; }
 
-    // Simulación de respuesta del servidor (acá se conecta el envío real al Backend).
-    setTimeout(function(){
-      spinner.style.display = 'none';
-      btn.disabled = false;
-      btnText.textContent = 'Confirmar reserva';
-      showView('exito'); // por defecto esta demo muestra éxito; cambiar a showView('error') para ver ese caso
-    }, 1200);
+  var back = 'detalle?id=' + tool.id;
+  $('backLink').href = back; $('btnVolver').href = back; $('btnErrVolver').href = back;
+  $('cIcon').innerHTML = AR.icon(tool.icon);
+  $('cName').textContent = tool.name;
+  $('cOwner').textContent = 'Publicado por ' + tool.owner;
+  $('cInicio').textContent = AR.fechaCorta(data.inicio);
+  $('cFin').textContent = AR.fechaCorta(data.fin);
+  $('cRetiro').textContent = data.retiro;
+  $('cDevolucion').textContent = data.devolucion;
+
+  // Se vuelve a calcular el precio con la misma función que usó el detalle: si no coincide, se avisa.
+  var r = AR.calcularPrecio({precioDia: tool.price, inicio: data.inicio, fin: data.fin, retiro: data.retiro, devolucion: data.devolucion});
+  if(!r.ok || r.total !== data.total){
+    falla('No pudimos verificar el precio de tu reserva. Volvé a elegir tus fechas.'); return;
+  }
+  var html = '<div class="summary-row"><span>' + AR.formula(r) + '</span><span>' + AR.fmt(r.subtotal) + '</span></div>' +
+             '<div class="summary-row"><span>Tarifa de servicio (' + Math.round(AR.SERVICIO * 100) + '%)</span><span>' + AR.fmt(r.servicio) + '</span></div>' +
+             '<div class="summary-row total"><span>Total</span><span>' + AR.fmt(r.total) + '</span></div>';
+  var box = $('priceBox'); box.className = 'summary-box on'; box.innerHTML = html;
+
+  $('btnConfirmar').addEventListener('click', function(){
+    var b = this; b.disabled = true; $('spinner').style.display = 'inline-block'; $('btnText').textContent = 'Verificando disponibilidad...';
+    setTimeout(function(){   // acá el Backend va a confirmar que las fechas siguen libres
+      if(AR.rangoOcupado(tool, data.inicio, data.fin)){
+        b.disabled = false; $('spinner').style.display = 'none'; $('btnText').textContent = 'Confirmar y pagar';
+        falla('Esas fechas ya no están disponibles. Volvé a elegir otro período.'); return;
+      }
+      location.href = 'pago';
+    }, 800);
   });
+})();
 </script>
 
 </body>
