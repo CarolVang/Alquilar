@@ -1,4 +1,7 @@
+﻿.env
 .env - Acceso directo.lnk
-.env
-writable/logs/log-2026-09-08.log
-writable/logs/log-2026-09-11.log
+writable/*
+!writable/index.html
+vendor/
+node_modules/
+composer.lock
