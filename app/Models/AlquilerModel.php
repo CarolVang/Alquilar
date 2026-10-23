@@ -67,7 +67,7 @@ class AlquilerModel extends Model
 
         return $builder->countAllResults() > 0;
     }
-    
+
     public function getPeriodosOcupados(int $idHerramienta): array
     {
         return $this->select('fecha_inicio, fecha_fin')
@@ -106,5 +106,39 @@ class AlquilerModel extends Model
         }
 
         return ['exito' => true, 'id_alquiler' => $idNuevo];
+    }
+
+    public function calcularPrecio(int $idHerramienta, string $fechaInicio, string $fechaFin): array
+    {
+        $herramienta = $this->db->table('herramientas')
+                                 ->select('precio')
+                                 ->where('id_herramienta', $idHerramienta)
+                                 ->get()
+                                 ->getRowArray();
+
+        if ($herramienta === null) {
+            return ['exito' => false, 'mensaje' => 'La herramienta no existe.'];
+        }
+
+        $precioHora = (float) $herramienta['precio'];
+
+        $inicio = new \DateTime($fechaInicio);
+        $fin    = new \DateTime($fechaFin);
+
+        if ($fin <= $inicio) {
+            return ['exito' => false, 'mensaje' => 'La fecha de fin debe ser posterior a la de inicio.'];
+        }
+
+        $segundos = $fin->getTimestamp() - $inicio->getTimestamp();
+        $horas    = $segundos / 3600;
+
+        $precioTotal = round($precioHora * $horas, 2);
+
+        return [
+            'exito'        => true,
+            'precio_hora'  => $precioHora,
+            'horas'        => round($horas, 2),
+            'precio_total' => $precioTotal,
+        ];
     }
 }

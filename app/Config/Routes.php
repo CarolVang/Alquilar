@@ -22,5 +22,5 @@ $routes->get('catalogo', 'Catalogo::index');
 $routes->get('detalle', 'Herramienta::detalle');
 $routes->get('confirmacion', 'Reserva::confirmacion');
 
-$routes->get('detalle', 'Herramientas::detalle');
+$routes->get('detalle', 'Herramientas::detalle'); 
 
