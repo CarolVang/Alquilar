@@ -50,6 +50,7 @@
   .pill-disp .ok{ background:var(--success-bg); color:var(--success); }
   .pill-disp .ocupado{ background:var(--pending-bg,#FCEFDA); color:var(--pending,#B96F16); }
   .p-body{ padding:13px 15px 15px; display:flex; flex-direction:column; flex:1; }
+  .p-body .cat-tag{ display:block; font-size:10px; font-weight:700; color:var(--teal-600); text-transform:uppercase; letter-spacing:.03em; margin-bottom:3px; }
   .p-body h3{ font-size:14px; margin:0 0 10px; font-weight:600; line-height:1.3; min-height:2.6em; }
   .price-row{ display:flex; justify-content:space-between; align-items:flex-end; gap:8px; margin-top:auto; }
   .price{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700; color:var(--teal-700); line-height:1; }
@@ -93,6 +94,10 @@
 </div>
 
 <div class="filters" id="filtersPanel">
+  <div class="chip active" data-categoria="" onclick="elegirCategoria(this)">Todas</div>
+  <?php foreach (['Herramientas', 'Construcción', 'Recreación', 'Jardín', 'Eventos', 'Vehículos'] as $cat) : ?>
+    <div class="chip" data-categoria="<?= esc($cat) ?>" onclick="elegirCategoria(this)"><?= esc($cat) ?></div>
+  <?php endforeach ?>
   <select id="filterPrecio" onchange="applyFilters()">
     <option value="">Cualquier precio</option>
     <option value="1000">Hasta $1.000/día</option>
@@ -178,6 +183,7 @@
       return [
           'id'         => $idH,
           'name'       => $h['nombre'],
+          'categoria'  => $h['categoria'],
           'price'      => (float) $h['precio_dia'],
           'priceHora'  => $h['precio_hora'] !== null ? (float) $h['precio_hora'] : null,
           'estado'     => $h['estado'],
@@ -203,6 +209,7 @@
           <div class="pill-disp">${pillDisponibilidad(t)}</div>
         </div>
         <div class="p-body">
+          ${t.categoria ? `<span class="cat-tag">${t.categoria}</span>` : ''}
           <h3>${t.name}</h3>
           ${t.estado === 'disponible' ? `
             <div class="price-row">
@@ -214,12 +221,22 @@
       </a>`).join('');
   }
 
+  let categoriaElegida = '';
+
+  function elegirCategoria(chip){
+    categoriaElegida = chip.dataset.categoria;
+    document.querySelectorAll('.filters .chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    applyFilters();
+  }
+
   function applyFilters(){
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
     const maxPrecio = document.getElementById('filterPrecio').value;
 
     let list = TOOLS.filter(t => {
       if(q && !t.name.toLowerCase().includes(q)) return false;
+      if(categoriaElegida && t.categoria !== categoriaElegida) return false;
       if(maxPrecio === '1000' && t.price > 1000) return false;
       if(maxPrecio === '2500' && t.price > 2500) return false;
       if(maxPrecio === '99999' && t.price <= 2500) return false;
@@ -244,6 +261,9 @@
   function clearFilters(){
     document.getElementById('searchInput').value = '';
     document.getElementById('filterPrecio').value = '';
+    categoriaElegida = '';
+    document.querySelectorAll('.filters .chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('.filters .chip[data-categoria=""]').classList.add('active');
     applyFilters();
   }
 

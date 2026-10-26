@@ -136,12 +136,9 @@ $urlSubmit   = $esEdicion ? site_url('mis-herramientas/editar/' . (int) $herrami
           <label class="field-label">Categoría</label>
           <select class="field-input" name="categoria" required>
             <option value="">Elegí una categoría</option>
-            <option>Herramientas</option>
-            <option>Construcción</option>
-            <option>Recreación</option>
-            <option>Jardín</option>
-            <option>Eventos</option>
-            <option>Vehículos</option>
+            <?php foreach (['Herramientas', 'Construcción', 'Recreación', 'Jardín', 'Eventos', 'Vehículos'] as $cat) : ?>
+              <option <?= ($herramienta['categoria'] ?? '') === $cat ? 'selected' : '' ?>><?= esc($cat) ?></option>
+            <?php endforeach ?>
           </select>
           <div class="field-error">Elegí una categoría.</div>
         </div>

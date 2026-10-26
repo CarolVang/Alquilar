@@ -37,6 +37,7 @@ class Herramientas extends BaseController
         $data = [
             'id_usuario'  => $this->session->get('id_usuario'),
             'nombre'      => $this->request->getPost('nombre'),
+            'categoria'   => $this->request->getPost('categoria'),
             'descripcion' => $this->request->getPost('descripcion'),
             'precio_dia'  => $this->request->getPost('precio_dia'),
             'precio_hora' => $this->request->getPost('precio_hora') ?: null,
@@ -106,6 +107,7 @@ class Herramientas extends BaseController
 
         $data = [
             'nombre'      => $this->request->getPost('nombre'),
+            'categoria'   => $this->request->getPost('categoria'),
             'descripcion' => $this->request->getPost('descripcion'),
             'precio_dia'  => $this->request->getPost('precio_dia'),
             'precio_hora' => $this->request->getPost('precio_hora') ?: null,

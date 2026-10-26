@@ -12,7 +12,7 @@ class HerramientaModel extends Model
     protected $returnType        = 'array';
     protected $useSoftDeletes    = false;
     protected $protectFields     = true;
-    protected $allowedFields     = ['id_usuario', 'nombre', 'descripcion', 'precio_dia', 'precio_hora', 'estado', 'foto_url'];
+    protected $allowedFields     = ['id_usuario', 'nombre', 'categoria', 'descripcion', 'precio_dia', 'precio_hora', 'estado', 'foto_url'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -31,6 +31,7 @@ class HerramientaModel extends Model
     protected $validationRules = [
         'id_usuario'  => 'required|is_natural_no_zero',
         'nombre'      => 'required|min_length[3]|max_length[100]',
+        'categoria'   => 'required|in_list[Herramientas,Construcción,Recreación,Jardín,Eventos,Vehículos]',
         'descripcion' => 'permit_empty|max_length[500]',
         'precio_dia'  => 'required|decimal|greater_than[0]',
         'precio_hora' => 'permit_empty|decimal|greater_than[0]',

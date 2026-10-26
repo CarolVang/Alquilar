@@ -36,6 +36,7 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   .gallery-thumbs div{ width:56px; height:56px; background:var(--teal-50); border:1px solid var(--line); border-radius:8px; }
 
   .badge-verified{ display:inline-flex; align-items:center; gap:5px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:4px 10px; font-size:10.5px; font-weight:700; color:var(--teal-700); margin-bottom:10px; }
+  .cat-tag{ display:inline-block; font-size:10.5px; font-weight:700; color:var(--teal-600); text-transform:uppercase; letter-spacing:.03em; margin-bottom:4px; }
   .detail-info h1{ font-size:22px; margin:0 0 6px; }
   .rating{ font-size:12.5px; color:var(--muted); margin-bottom:14px; }
   .rating b{ color:var(--ink); }
@@ -122,6 +123,9 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
       <?php endif ?>
     </div>
 
+    <?php if (! empty($herramienta['categoria'])) : ?>
+      <div class="cat-tag"><?= esc($herramienta['categoria']) ?></div>
+    <?php endif ?>
     <h1><?= esc($herramienta['nombre']) ?></h1>
     <div class="owner-row">
       <div class="owner-avatar"><?= esc(strtoupper(substr($propietario['nombre'] ?? '?', 0, 2))) ?></div>
