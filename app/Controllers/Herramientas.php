@@ -32,7 +32,8 @@ class Herramientas extends BaseController
             'id_usuario'  => $this->session->get('id_usuario'),
             'nombre'      => $this->request->getPost('nombre'),
             'descripcion' => $this->request->getPost('descripcion'),
-            'precio'      => $this->request->getPost('precio'),
+            'precio_dia'  => $this->request->getPost('precio_dia'),
+            'precio_hora' => $this->request->getPost('precio_hora') ?: null,
             'estado'      => 'disponible',
         ];
 

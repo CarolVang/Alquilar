@@ -12,7 +12,7 @@ class PagoModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id_alquiler', 'monto', 'metodo', 'estado'];
+    protected $allowedFields    = ['id_alquiler', 'monto', 'metodo', 'estado', 'fecha_operacion'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -28,14 +28,19 @@ class PagoModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
+    protected $validationRules      = [
+        'id_alquiler' => 'required|is_natural_no_zero',
+        'monto'       => 'required|decimal|greater_than[0]',
+        'metodo'      => 'required|in_list[simulado]',
+        'estado'      => 'required|in_list[pagado,pendiente,rechazado]',
+    ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
+    protected $beforeInsert   = ['setFechaOperacion'];
     protected $afterInsert    = [];
     protected $beforeUpdate   = [];
     protected $afterUpdate    = [];
@@ -43,4 +48,13 @@ class PagoModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    protected function setFechaOperacion(array $data): array
+    {
+        if (! isset($data['data']['fecha_operacion'])) {
+            $data['data']['fecha_operacion'] = date('Y-m-d H:i:s');
+        }
+
+        return $data;
+    }
 }

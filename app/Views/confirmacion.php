@@ -127,9 +127,9 @@ $horaDevolucion = (new DateTime($fecha_fin))->format('H:i');
     </div>
 
     <div class="card">
-      <h3 style="font-size:13.5px; margin:0 0 10px;">Precio estimado</h3>
+      <h3 style="font-size:13.5px; margin:0 0 10px;">Precio estimado (<?= $unidad_precio === 'hora' ? 'por hora' : 'por día' ?>)</h3>
       <div class="summary-box">
-        <div class="summary-row"><span>$<?= number_format((float) $herramienta['precio'], 0, ',', '.') ?> × <?= $dias ?> <?= $dias === 1 ? 'día' : 'días' ?></span><span>$<?= number_format($subtotal, 0, ',', '.') ?></span></div>
+        <div class="summary-row"><span>$<?= number_format($unidad_precio === 'hora' ? (float) $herramienta['precio_hora'] : (float) $herramienta['precio_dia'], 0, ',', '.') ?> × <?= $cantidad ?> <?= $unidad_precio === 'hora' ? ($cantidad == 1 ? 'hora' : 'horas') : ($cantidad == 1 ? 'día' : 'días') ?></span><span>$<?= number_format($subtotal, 0, ',', '.') ?></span></div>
         <div class="summary-row"><span>Tarifa de servicio</span><span>$<?= number_format($servicio, 0, ',', '.') ?></span></div>
         <div class="summary-row total"><span>Total</span><span>$<?= number_format($total, 0, ',', '.') ?></span></div>
       </div>
@@ -199,6 +199,7 @@ $horaDevolucion = (new DateTime($fecha_fin))->format('H:i');
       headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
       body: new URLSearchParams({
         id_herramienta: <?= (int) $id_herramienta ?>,
+        unidad_precio: <?= json_encode($unidad_precio) ?>,
         fecha_inicio: <?= json_encode($fecha_inicio) ?>,
         fecha_fin: <?= json_encode($fecha_fin) ?>,
       }),

@@ -85,6 +85,10 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   .summary-row{ display:flex; justify-content:space-between; padding:3px 0; color:var(--muted); }
   .summary-row.total{ border-top:1px solid var(--line); margin-top:5px; padding-top:8px; font-weight:700; color:var(--ink); font-size:13.5px; }
 
+  .unidad-toggle{ display:flex; background:var(--teal-50); border-radius:9px; padding:4px; margin-bottom:14px; }
+  .unidad-toggle div{ flex:1; text-align:center; padding:8px; border-radius:6px; font-size:12.5px; font-weight:700; color:var(--muted); cursor:pointer; }
+  .unidad-toggle div.on{ background:#fff; color:var(--teal-900); box-shadow:0 2px 6px rgba(0,0,0,.08); }
+
   .reservar-btn{
     width:100%; background:var(--amber-500); color:var(--teal-900); border:none; padding:13px;
     border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit;
@@ -132,7 +136,14 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
 
   <div class="booking-card">
     <h3>Elegí cuándo alquilarlo</h3>
-    <div class="price-line">$<?= number_format((float) $herramienta['precio'], 0, ',', '.') ?> <span>/día</span></div>
+    <div class="price-line" id="priceLine">$<?= number_format((float) $herramienta['precio_dia'], 0, ',', '.') ?> <span>/día</span></div>
+
+    <?php if ($herramienta['precio_hora'] !== null) : ?>
+      <div class="unidad-toggle">
+        <div class="on" id="tab-dia" onclick="setModo('dia')">Por día</div>
+        <div id="tab-hora" onclick="setModo('hora')">Por hora</div>
+      </div>
+    <?php endif ?>
 
     <div class="avail-legend">
       <span><i style="background:#fff; border:1px solid var(--line);"></i>Disponible</span>
@@ -158,7 +169,7 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
     <div class="form-row">
       <div class="field-group" id="group-horaRetiro">
         <label class="field-label">Hora de retiro</label>
-        <select class="field-input" id="horaRetiro">
+        <select class="field-input" id="horaRetiro" onchange="updateSummary()">
           <option value="">Elegí un horario</option>
           <option>08:00</option><option>09:00</option><option>10:00</option><option>14:00</option><option>16:00</option>
         </select>
@@ -166,7 +177,7 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
       </div>
       <div class="field-group" id="group-horaDevolucion">
         <label class="field-label">Hora de devolución</label>
-        <select class="field-input" id="horaDevolucion">
+        <select class="field-input" id="horaDevolucion" onchange="updateSummary()">
           <option value="">Elegí un horario</option>
           <option>08:00</option><option>09:00</option><option>10:00</option><option>14:00</option><option>16:00</option><option>18:00</option>
         </select>
@@ -187,7 +198,9 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
 </div>
 
 <script>
-  const PRECIO_DIA = <?= (float) $herramienta['precio'] ?>;
+  const PRECIO_DIA = <?= (float) $herramienta['precio_dia'] ?>;
+  const PRECIO_HORA = <?= $herramienta['precio_hora'] !== null ? (float) $herramienta['precio_hora'] : 'null' ?>;
+  let MODO = 'dia';
   const ANIO = <?= $anio ?>;
   const MES = <?= $mes ?>; // 1-12
   const DIAS_MES = <?= $diasEnMes ?>;
@@ -215,6 +228,17 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
 
   let seleccion = { inicio: null, fin: null };
 
+  function setModo(modo){
+    MODO = modo;
+    document.getElementById('tab-dia').classList.toggle('on', modo === 'dia');
+    document.getElementById('tab-hora').classList.toggle('on', modo === 'hora');
+    document.getElementById('priceLine').innerHTML = modo === 'dia'
+      ? `$${PRECIO_DIA.toLocaleString('es-AR')} <span>/día</span>`
+      : `$${PRECIO_HORA.toLocaleString('es-AR')} <span>/hora</span>`;
+    seleccion = { inicio: null, fin: null };
+    renderSeleccion();
+  }
+
   function buildCalendar(){
     const dnames = ['L','M','M','J','V','S','D'];
     let html = dnames.map(d => `<div class="dname">${d}</div>`).join('');
@@ -231,6 +255,13 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   }
 
   function pickDay(d){
+    if(MODO === 'hora'){
+      // Por hora solo se reserva dentro de un mismo dia.
+      seleccion = { inicio: d, fin: d };
+      renderSeleccion();
+      return;
+    }
+
     if(!seleccion.inicio || (seleccion.inicio && seleccion.fin)){
       // arrancar selección nueva
       seleccion = { inicio: d, fin: null };
@@ -269,18 +300,39 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
 
   function updateSummary(){
     const box = document.getElementById('summaryBox');
-    if(seleccion.inicio && seleccion.fin){
-      const dias = (seleccion.fin - seleccion.inicio) + 1;
-      const subtotal = dias * PRECIO_DIA;
-      const servicio = Math.round(subtotal * 0.1);
-      document.getElementById('summaryDias').textContent = `$${PRECIO_DIA.toLocaleString('es-AR')} × ${dias} ${dias === 1 ? 'día' : 'días'}`;
-      document.getElementById('summarySubtotal').textContent = `$${subtotal.toLocaleString('es-AR')}`;
-      document.getElementById('summaryServicio').textContent = `$${servicio.toLocaleString('es-AR')}`;
-      document.getElementById('summaryTotal').textContent = `$${(subtotal + servicio).toLocaleString('es-AR')}`;
-      box.classList.add('on');
-    } else {
+    const hRetiro = document.getElementById('horaRetiro').value;
+    const hDevol = document.getElementById('horaDevolucion').value;
+
+    if(!seleccion.inicio || !seleccion.fin){
       box.classList.remove('on');
+      return;
     }
+
+    let cantidad, precioUnidad, etiqueta;
+
+    if(MODO === 'hora'){
+      if(!hRetiro || !hDevol || hDevol <= hRetiro){
+        box.classList.remove('on');
+        return;
+      }
+      const [h1, m1] = hRetiro.split(':').map(Number);
+      const [h2, m2] = hDevol.split(':').map(Number);
+      cantidad = ((h2 * 60 + m2) - (h1 * 60 + m1)) / 60;
+      precioUnidad = PRECIO_HORA;
+      etiqueta = cantidad === 1 ? 'hora' : 'horas';
+    } else {
+      cantidad = (seleccion.fin - seleccion.inicio) + 1;
+      precioUnidad = PRECIO_DIA;
+      etiqueta = cantidad === 1 ? 'día' : 'días';
+    }
+
+    const subtotal = Math.round(cantidad * precioUnidad * 100) / 100;
+    const servicio = Math.round(subtotal * 0.1 * 100) / 100;
+    document.getElementById('summaryDias').textContent = `$${precioUnidad.toLocaleString('es-AR')} × ${cantidad} ${etiqueta}`;
+    document.getElementById('summarySubtotal').textContent = `$${subtotal.toLocaleString('es-AR')}`;
+    document.getElementById('summaryServicio').textContent = `$${servicio.toLocaleString('es-AR')}`;
+    document.getElementById('summaryTotal').textContent = `$${(subtotal + servicio).toLocaleString('es-AR')}`;
+    box.classList.add('on');
   }
 
   document.getElementById('btnReservar').addEventListener('click', function(){
@@ -311,6 +363,7 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
 
     const params = new URLSearchParams({
       id_herramienta: <?= (int) $herramienta['id_herramienta'] ?>,
+      unidad_precio: MODO,
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
     });

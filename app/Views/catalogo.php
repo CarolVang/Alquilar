@@ -168,11 +168,12 @@
 
   // Datos reales, provistos por el Controller (Catalogo::index -> HerramientaModel::getCatalogoOrdenado)
   const TOOLS = <?= json_encode(array_map(static fn ($h) => [
-      'id'     => (int) $h['id_herramienta'],
-      'name'   => $h['nombre'],
-      'price'  => (float) $h['precio'],
-      'estado' => $h['estado'],
-      'foto'   => $h['foto_url'],
+      'id'        => (int) $h['id_herramienta'],
+      'name'      => $h['nombre'],
+      'price'     => (float) $h['precio_dia'],
+      'priceHora' => $h['precio_hora'] !== null ? (float) $h['precio_hora'] : null,
+      'estado'    => $h['estado'],
+      'foto'      => $h['foto_url'],
   ], $herramientas)) ?>;
 
   function renderCards(list){
@@ -184,7 +185,7 @@
           <div class="p-cat">${ESTADOS[t.estado] || t.estado}</div>
           <h3>${t.name}</h3>
           <div class="price-row">
-            <div class="price">$${t.price.toLocaleString('es-AR')}<span> /día</span></div>
+            <div class="price">$${t.price.toLocaleString('es-AR')}<span> /día</span>${t.priceHora ? ` · $${t.priceHora.toLocaleString('es-AR')}<span> /hora</span>` : ''}</div>
             ${t.estado === 'disponible'
               ? `<a class="rent-btn" href="/detalle/${t.id}" style="text-decoration:none;display:inline-block;">Alquilar</a>`
               : `<button class="rent-btn" disabled style="opacity:.5;cursor:not-allowed;">No disponible</button>`}

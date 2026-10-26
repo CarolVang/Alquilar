@@ -83,6 +83,7 @@
 </head>
 <body>
 
+<?= view('partials/nav', ['activo' => 'mis-herramientas']) ?>
 <div class="topbar">
   <div class="logo">Alquil<span>-Ar</span></div>
   <a href="/publicar-herramienta" class="btn-amber">+ Publicar nueva</a>
@@ -105,7 +106,7 @@
       <div class="tool-body">
         <h3><?= esc($h['nombre']) ?></h3>
         <div class="tool-status<?= $h['estado'] !== 'disponible' ? ' paused' : '' ?>">
-          <?= $h['estado'] === 'disponible' ? '●' : '⏸' ?> <?= esc(ucfirst($h['estado'])) ?> · $<?= number_format((float) $h['precio'], 0, ',', '.') ?>/día
+          <?= $h['estado'] === 'disponible' ? '●' : '⏸' ?> <?= esc(ucfirst($h['estado'])) ?> · $<?= number_format((float) $h['precio_dia'], 0, ',', '.') ?>/día<?= $h['precio_hora'] !== null ? ' · $' . number_format((float) $h['precio_hora'], 0, ',', '.') . '/hora' : '' ?>
         </div>
         <div class="tool-actions"><button class="btn-edit">Editar</button><button class="btn-pause">Pausar</button></div>
       </div>

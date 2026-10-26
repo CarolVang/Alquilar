@@ -123,11 +123,16 @@
           </select>
           <div class="field-error">Elegí una categoría.</div>
         </div>
-        <div class="field-group" id="group-precio">
+        <div class="field-group" id="group-precio_dia">
           <label class="field-label">Precio por día</label>
-          <input class="field-input" type="number" name="precio" placeholder="$ 1.200" min="1" required>
+          <input class="field-input" type="number" name="precio_dia" placeholder="$ 1.200" min="1" required>
           <div class="field-error">Ingresá un precio válido.</div>
         </div>
+      </div>
+
+      <div class="field-group" id="group-precio-hora">
+        <label class="field-label">Precio por hora (opcional)</label>
+        <input class="field-input" type="number" name="precio_hora" placeholder="$ 200" min="1">
       </div>
 
       <div class="field-group" id="group-capacidad">
@@ -180,7 +185,7 @@
 
     // Validación visual básica
     let valid = true;
-    ['nombre','categoria','precio','descripcion'].forEach(name => {
+    ['nombre','categoria','precio_dia','descripcion'].forEach(name => {
       const group = document.getElementById('group-' + name);
       group.classList.remove('has-error');
       if(!form[name].value.trim()){
