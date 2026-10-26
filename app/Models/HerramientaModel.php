@@ -35,7 +35,9 @@ class HerramientaModel extends Model
         'precio_dia'  => 'required|decimal|greater_than[0]',
         'precio_hora' => 'permit_empty|decimal|greater_than[0]',
         'estado'      => 'permit_empty|in_list[disponible,alquilada,no_disponible]',
-        'foto_url'    => 'permit_empty|valid_url_strict',
+        // La URL la genera el servidor al mover el archivo subido (Herramientas::crear()),
+        // nunca viene como texto libre del usuario, por eso no exige valid_url_strict.
+        'foto_url'    => 'permit_empty|max_length[255]',
     ];
 
     protected $validationMessages   = [];

@@ -24,13 +24,21 @@
 
   .upload-box{
     border:1.5px dashed #C8D2CC; border-radius:12px; padding:26px; text-align:center; color:var(--teal-700);
-    margin-bottom:20px; cursor:pointer;
+    margin-bottom:20px; cursor:pointer; position:relative;
   }
   .upload-box svg{ width:30px; height:30px; margin-bottom:8px; }
   .upload-box .u1{ font-size:13px; font-weight:600; }
   .upload-box .u2{ font-size:11px; color:var(--muted); margin-top:3px; }
-  .thumbs-row{ display:flex; gap:8px; margin-top:12px; justify-content:center; }
-  .thumbs-row div{ width:52px; height:52px; border-radius:8px; background:var(--teal-100); }
+  .upload-box input[type="file"]{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:1; }
+  .upload-box.has-preview{ padding:0; border-style:solid; overflow:hidden; }
+  .upload-box.has-preview .placeholder{ display:none; }
+  .preview-wrap{ display:none; position:relative; }
+  .upload-box.has-preview .preview-wrap{ display:block; }
+  .preview-wrap img{ width:100%; max-height:220px; object-fit:cover; display:block; }
+  .preview-wrap .quitar-foto{
+    position:absolute; top:8px; right:8px; background:rgba(11,61,60,.85); color:#fff; border:none;
+    border-radius:50%; width:26px; height:26px; font-size:14px; cursor:pointer; z-index:2;
+  }
 
   .form-row{ display:flex; gap:14px; }
   .field-group{ flex:1; margin-bottom:16px; }
@@ -94,12 +102,18 @@
     <form id="publicarForm">
       <?= csrf_field() ?>
       <div class="upload-box" id="uploadBox">
-        <svg class="stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto; display:block;">
-          <path d="M12 16V4M12 4l-4 4M12 4l4 4M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/>
-        </svg>
-        <div class="u1">Arrastrá tus fotos acá</div>
-        <div class="u2">o hacé clic para subir (hasta 6 fotos)</div>
-        <div class="thumbs-row"><div></div><div></div><div></div></div>
+        <input type="file" name="foto" id="inputFoto" accept="image/jpeg,image/png,image/webp">
+        <div class="placeholder">
+          <svg class="stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto; display:block;">
+            <path d="M12 16V4M12 4l-4 4M12 4l4 4M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/>
+          </svg>
+          <div class="u1">Hacé clic para subir una foto</div>
+          <div class="u2">JPG, PNG o WEBP · hasta 4 MB (opcional)</div>
+        </div>
+        <div class="preview-wrap" id="previewWrap">
+          <img id="previewImg" alt="Vista previa de la foto">
+          <button type="button" class="quitar-foto" id="btnQuitarFoto" title="Quitar foto">✕</button>
+        </div>
       </div>
 
       <div class="field-group" id="group-nombre">
@@ -172,6 +186,30 @@
   // por el fetch/submit real al Controller, y se muestra el banner de
   // error o el successView según la respuesta del servidor.
   // -----------------------------------------------------------------
+  // Preview de la foto elegida, antes de mandarla al servidor.
+  const uploadBox = document.getElementById('uploadBox');
+  const inputFoto = document.getElementById('inputFoto');
+  const previewImg = document.getElementById('previewImg');
+
+  inputFoto.addEventListener('change', function () {
+    const archivo = inputFoto.files[0];
+    if (! archivo) {
+      uploadBox.classList.remove('has-preview');
+      return;
+    }
+    const lector = new FileReader();
+    lector.onload = function (e) {
+      previewImg.src = e.target.result;
+      uploadBox.classList.add('has-preview');
+    };
+    lector.readAsDataURL(archivo);
+  });
+
+  document.getElementById('btnQuitarFoto').addEventListener('click', function () {
+    inputFoto.value = '';
+    uploadBox.classList.remove('has-preview');
+  });
+
   const form = document.getElementById('publicarForm');
   const btn = document.getElementById('btnPublicar');
   const spinner = document.getElementById('spinner');

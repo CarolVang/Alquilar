@@ -2,6 +2,8 @@
 .env - Acceso directo.lnk
 writable/*
 !writable/index.html
+public/uploads/herramientas/*
+!public/uploads/herramientas/.gitkeep
 vendor/
 node_modules/
 composer.lock
