@@ -26,6 +26,10 @@
     RewriteRule ^(app|system|writable|tests|vendor)(/|$) - [F,L]
 
     # --- 3) Todo lo demas se sirve a traves de public/ ---
+    # El destino lleva la barra inicial (/public/$1, no public/$1): sin ella,
+    # para la URL raiz "/" el resultado es una ruta relativa ambigua que en
+    # InfinityFree termina en 403 (Apache intenta listar el directorio en vez
+    # de ejecutar index.php, y el listado esta bloqueado por seguridad).
     RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/$1 [L]
+    RewriteRule ^(.*)$ /public/$1 [L]
 </IfModule>
