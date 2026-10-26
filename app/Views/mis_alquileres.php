@@ -189,6 +189,9 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
 <div class="toast-ar" id="toast"></div>
 
 <script>
+const CSRF_TOKEN_NAME = <?= json_encode(csrf_token()) ?>;
+const CSRF_HASH = <?= json_encode(csrf_hash()) ?>;
+
 document.querySelectorAll('.tab').forEach(function (btn) {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.tab').forEach(function (b) { b.classList.remove('on'); });
@@ -216,7 +219,7 @@ document.addEventListener('click', function (e) {
   fetch('<?= site_url('alquileres/avanzar-estado') ?>/' + btn.getAttribute('data-id'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
-    body: new URLSearchParams({ estado: btn.getAttribute('data-estado') }),
+    body: new URLSearchParams({ estado: btn.getAttribute('data-estado'), [CSRF_TOKEN_NAME]: CSRF_HASH }),
   })
     .then(function (res) { return res.json(); })
     .then(function (data) {

@@ -94,6 +94,7 @@
 
     <!-- Formulario -->
     <form id="publicarForm">
+      <?= csrf_field() ?>
       <div class="upload-box" id="uploadBox">
         <svg class="stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto; display:block;">
           <path d="M12 16V4M12 4l-4 4M12 4l4 4M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/>

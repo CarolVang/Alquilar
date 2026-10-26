@@ -107,6 +107,7 @@
     <?php endif ?>
 
     <form id="loginForm" method="post" action="/login">
+      <?= csrf_field() ?>
       <input type="hidden" name="rol" id="rolInput" value="cliente">
 
       <label class="field-label">Email</label>

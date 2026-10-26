@@ -180,6 +180,12 @@ $horaDevolucion = (new DateTime($fecha_fin))->format('H:i');
 </div>
 
 <script>
+  // Token CSRF: el fetch de abajo no sale de un <form>, asi que el campo
+  // no se genera solo. Se manda como parte del body, igual que lo haria
+  // csrf_field() en un form tradicional.
+  const CSRF_TOKEN_NAME = <?= json_encode(csrf_token()) ?>;
+  const CSRF_HASH = <?= json_encode(csrf_hash()) ?>;
+
   function showView(name){
     document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
     document.getElementById('view-' + name).classList.add('on');
@@ -202,6 +208,7 @@ $horaDevolucion = (new DateTime($fecha_fin))->format('H:i');
         unidad_precio: <?= json_encode($unidad_precio) ?>,
         fecha_inicio: <?= json_encode($fecha_inicio) ?>,
         fecha_fin: <?= json_encode($fecha_fin) ?>,
+        [CSRF_TOKEN_NAME]: CSRF_HASH,
       }),
     })
       .then(res => res.json())
