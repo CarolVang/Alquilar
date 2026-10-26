@@ -1,0 +1,31 @@
+# Alquil-Ar — .htaccess de la raiz de htdocs en InfinityFree.
+#
+# InfinityFree no deja cambiar el document root a /public (todo hosting
+# compartido sin acceso SSH funciona asi), asi que el proyecto entero
+# (app/, system/, writable/, vendor/, .env, etc.) termina viviendo adentro
+# de la carpeta publica por necesidad. Este archivo hace dos cosas:
+#
+#   1. Bloquea el acceso directo por URL a todo lo que no sea /public.
+#   2. Manda cualquier otro pedido a public/index.php, como corresponde.
+
+# --- 1) Bloquear archivos sueltos sensibles en esta misma carpeta ---
+<FilesMatch "(^\.env$|^composer\.(json|lock)$|^spark$|^preload\.php$|^phpunit\.dist\.xml$|^\.htaccess$|^\.gitignore$)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # --- 2) Bloquear el acceso directo a las carpetas internas del framework ---
+    RewriteRule ^(app|system|writable|tests|vendor)(/|$) - [F,L]
+
+    # --- 3) Todo lo demas se sirve a traves de public/ ---
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
