@@ -57,6 +57,20 @@ una primera vez, no necesita instalar ningún cliente FTP):
    estructura de carpetas tal cual está en el repo (`app/`, `system/`,
    `public/`, `writable/`, `.htaccess`, `spark`, `composer.json`,
    `composer.lock`).
+
+   **Ojo si subís un `.zip` y lo extraés con la opción del File Manager:**
+   el resultado final tiene que ser `htdocs/app/`, `htdocs/public/`, etc.
+   — directo, sin ninguna carpeta contenedora de por medio. Si el zip
+   que armaste (o el que bajaste de GitHub) tiene todo adentro de una
+   carpeta como `Alquilar-integracion-completa-pendiente-revision/`, al
+   extraerlo te va a quedar `htdocs/Alquilar-.../app/...`, un nivel de
+   más. Con esa estructura el sitio tira **403 Forbidden** en `/` y
+   también en `/public/`, porque Apache busca `index.php` directo en
+   `htdocs/` y no lo encuentra ahí (esto pasó en el deploy real del 26
+   oct 2026 y costó varias vueltas diagnosticarlo mal como permisos).
+   Si pasa: entrá a esa carpeta contenedora, seleccioná todo su
+   contenido, "Move" un nivel para arriba (a `htdocs/`), y después borrá
+   la carpeta contenedora ya vacía.
 3. Subí también la carpeta `vendor/` de producción (la mínima, no la de
    desarrollo).
 
@@ -121,13 +135,13 @@ de error exacto que te tire el sitio y lo vemos).
 
 ## Problemas conocidos / cosas para probar en vivo
 
-- **El `.htaccess` de la raíz usa un truco bien conocido de CodeIgniter para
-  hosting compartido** (reescribir todo hacia `public/` sin poder cambiar el
-  document root), pero no lo pude probar contra un Apache real — acá solo
-  tengo el servidor de desarrollo de PHP, que ignora los `.htaccess`
-  totalmente. Es el patrón estándar y documentado por el propio framework,
-  así que debería andar, pero si al entrar a `alquilar.site.je` te tira 404
-  en todo excepto la portada, avisame con la URL exacta que falla.
+- **El `.htaccess` de la raíz, confirmado funcionando** en el deploy real del
+  26 oct 2026, con una correción: la regla final tiene que usar
+  `/public/$1` (con la barra inicial), no `public/$1` — sin la barra, la
+  URL raíz `/` daba 403 porque Apache no resolvía bien la ruta relativa.
+  Ya está corregido en el repo. El otro 403 que salió en el mismo deploy
+  no era del `.htaccess` sino de la carpeta contenedora de más al subir
+  el zip (ver Paso 3).
 - **HTTPS**: dejé `app.baseURL` en `http://` porque no sé si InfinityFree ya
   tiene el certificado SSL activo para tu subdominio recién creado (a veces
   tarda). Una vez que confirmes que `https://alquilar.site.je/` carga sin
