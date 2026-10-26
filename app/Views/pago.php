@@ -90,15 +90,31 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
 .confirm-row:last-child{border-bottom:none}
 .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 @media (max-width:760px){.pay-grid{grid-template-columns:1fr}#resumen{order:-1}.nav{padding:14px 16px}}
+
+/* ===== Semana 10 ===== */
+body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve agregando ?demo a la dirección */
+@media (max-width:420px){.two{grid-template-columns:1fr;gap:0}.card{padding:16px}.actions .btn{width:100%}}
 </style>
 </head>
 <body>
+<script>if(/[?&]demo\b/.test(location.search)) document.body.classList.add('demo');</script>
 
 <div class="nav">
   <div class="logo">Alquil<span>-Ar</span></div>
   <a href="confirmacion" class="back" id="backTop">← Volver al resumen</a>
 </div>
 
+<?php if (! session('isLoggedIn')) : ?>
+<!-- Sin sesión no se puede pagar. BACKEND: el Controller también tiene que exigir sesión. -->
+<div class="wrap" style="max-width:900px">
+  <div class="state empty">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+    <h2>Iniciá sesión para pagar tu reserva</h2>
+    <p>Tus fechas quedan guardadas. Cuando ingreses, volvé al resumen para seguir.</p>
+    <a href="login" class="btn btn-primary">Iniciar sesión</a>
+  </div>
+</div>
+<?php else : ?>
 <div class="wrap" style="max-width:900px">
 
   <!-- Barra solo para esta demo: simula los estados sin backend -->
@@ -405,6 +421,7 @@ var AR = (function(){
   });
 })();
 </script>
+<?php endif ?>
 
 </body>
 </html>

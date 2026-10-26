@@ -112,6 +112,18 @@
 .nf h2{font-size:18px}.nf p{color:var(--muted);font-size:13px}
 .nf a{display:inline-block;margin-top:10px;background:var(--teal-900);color:#fff;padding:11px 20px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none}
 @media (max-width:560px){.form-row{flex-direction:column;gap:0}}
+
+/* ===== Semana 10: menú y responsive ===== */
+.nav-user{display:flex;align-items:center;gap:12px;font-size:13px}
+.nav-user a{color:#CFE0DB;text-decoration:none}
+.nav-user a.login-link{background:var(--amber-500);color:var(--teal-900);font-weight:700;padding:8px 14px;border-radius:7px}
+@media (max-width:640px){
+  .nav{padding:14px 16px;gap:12px}
+  .detail-wrap{padding:20px 16px 48px;gap:22px}
+  .gallery-main{height:200px}
+  .booking-card{padding:18px 16px 20px}
+}
+@media (max-width:420px){.nav-user a[href="mis-reservas"]{display:none}}
 </style>
 </head>
 <body>
@@ -119,7 +131,14 @@
 <div class="nav">
   <div class="logo">Alquil<span>-Ar</span></div>
   <a href="catalogo" class="back">← Volver al catálogo</a>
-  <div class="avatar-chip">SD</div>
+  <div class="nav-user">
+    <?php if (session('isLoggedIn')) : ?>
+      <a href="mis-reservas">Mis reservas</a>
+      <div class="avatar-chip" title="<?= esc(session('nombre')) ?>"><?= esc(mb_strtoupper(mb_substr((string) session('nombre'), 0, 1))) ?></div>
+    <?php else : ?>
+      <a href="login" class="login-link">Ingresar</a>
+    <?php endif ?>
+  </div>
 </div>
 
 <div class="nf" id="notFound" style="display:none">

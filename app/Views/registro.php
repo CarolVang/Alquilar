@@ -96,7 +96,7 @@
       </div>
     <?php endif ?>
 
-    <form id="regForm" method="post" action="/registro">
+    <form id="regForm" method="post" action="registro">
       <input type="hidden" name="rol" id="rolInput" value="<?= esc(old('rol', 'cliente')) ?>">
 
       <div class="field-group" id="group-nombre">
@@ -145,7 +145,7 @@
       <button type="submit" class="btn">Crear cuenta</button>
     </form>
 
-    <div class="switch-line">¿Ya tenés cuenta? <a href="/login">Iniciar sesión</a></div>
+    <div class="switch-line">¿Ya tenés cuenta? <a href="login">Iniciar sesión</a></div>
   </div>
 </div>
 

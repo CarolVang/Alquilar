@@ -20,6 +20,7 @@
   .logo{ font-size:18px; font-weight:700; }
   .logo span{ color:var(--amber-500); }
   .back{ color:#CFE0DB; text-decoration:none; font-size:13px; }
+  .logo a{ color:inherit; text-decoration:none; }
 
   .wrap{ max-width:620px; margin:0 auto; padding:32px 20px 60px; }
   .card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:26px 28px; }
@@ -74,13 +75,21 @@
   .success-view h2{ font-size:18px; margin:0 0 6px; }
   .success-view p{ color:var(--muted); font-size:13px; margin:0 0 20px; }
   .success-view a.btn{ display:inline-flex; text-decoration:none; width:auto; padding:12px 24px; }
+
+  /* Semana 10: responsive */
+  @media (max-width: 560px){
+    .topbar{ padding:14px 16px; }
+    .wrap{ padding:22px 16px 48px; }
+    .card{ padding:20px 16px; }
+    .form-row{ flex-direction:column; gap:0; }
+  }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="logo">Alquil<span>-Ar</span></div>
-  <a href="/panel" class="back">← Volver al panel</a>
+  <div class="logo"><a href="mis-herramientas">Alquil<span>-Ar</span></a></div>
+  <a href="mis-herramientas" class="back">← Volver a mis herramientas</a>
 </div>
 
 <div class="wrap">
@@ -94,12 +103,13 @@
 
     <!-- Formulario -->
     <form id="publicarForm">
+      <!-- BACKEND: la subida de fotos todavía no está conectada (el servidor no recibe archivos). -->
       <div class="upload-box" id="uploadBox">
         <svg class="stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto; display:block;">
           <path d="M12 16V4M12 4l-4 4M12 4l4 4M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/>
         </svg>
         <div class="u1">Arrastrá tus fotos acá</div>
-        <div class="u2">o hacé clic para subir (hasta 6 fotos)</div>
+        <div class="u2">Muy pronto vas a poder subir hasta 6 fotos</div>
         <div class="thumbs-row"><div></div><div></div><div></div></div>
       </div>
 
@@ -154,7 +164,7 @@
       </div>
       <h2>¡Herramienta publicada!</h2>
       <p>Ya está visible para que otros usuarios la encuentren y la alquilen.</p>
-      <a href="/mis-herramientas" class="btn">Ver mis herramientas</a>
+      <a href="mis-herramientas" class="btn">Ver mis herramientas</a>
     </div>
 
   </div>
@@ -162,11 +172,9 @@
 
 <script>
   // -----------------------------------------------------------------
-  // Esto es una SIMULACIÓN visual de los 3 estados (cargando/error/éxito),
-  // para mostrar el diseño mientras no está conectado el Backend real.
-  // Cuando Rodolfo conecte esto a CodeIgniter, este bloque se reemplaza
-  // por el fetch/submit real al Controller, y se muestra el banner de
-  // error o el successView según la respuesta del servidor.
+  // Envía el formulario al Controller (Herramientas::crear) y muestra
+  // los 3 estados: cargando, error (banner) y éxito (successView).
+  // BACKEND: "categoria" y "capacidad" se envían pero todavía no se guardan en la base.
   // -----------------------------------------------------------------
   const form = document.getElementById('publicarForm');
   const btn = document.getElementById('btnPublicar');
@@ -188,6 +196,10 @@
         valid = false;
       }
     });
+    if(!(Number(form.precio.value) > 0)){
+      document.getElementById('group-precio').classList.add('has-error');
+      valid = false;
+    }
     bannerError.style.display = 'none';
     if(!valid) return;
 
@@ -196,7 +208,7 @@
     spinner.style.display = 'inline-block';
     btnText.textContent = 'Publicando...';
 
-    fetch('/publicar-herramienta', {
+    fetch('publicar-herramienta', {
       method: 'POST',
       body: new FormData(form),
       headers: { 'X-Requested-With': 'XMLHttpRequest' },

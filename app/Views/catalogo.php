@@ -23,6 +23,9 @@
   .nav-links a{ color:inherit; text-decoration:none; }
   .nav-links a.on{ color:#fff; font-weight:700; }
   .avatar-chip{ width:32px; height:32px; border-radius:50%; background:var(--amber-500); color:var(--teal-900); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.5px; }
+  .nav-user{ display:flex; align-items:center; gap:12px; font-size:13px; }
+  .nav-user a{ color:#CFE0DB; text-decoration:none; }
+  .nav-user a.login-link{ background:var(--amber-500); color:var(--teal-900); font-weight:700; padding:8px 14px; border-radius:7px; }
 
   .search-panel{ background:var(--teal-900); padding:0 40px 26px; }
   .search-bar{ display:flex; background:#fff; border-radius:10px; padding:6px; max-width:620px; }
@@ -59,7 +62,9 @@
   .price-row{ display:flex; justify-content:space-between; align-items:center; }
   .price{ font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; color:var(--teal-900); }
   .price span{ font-size:10.5px; font-weight:500; color:var(--muted); }
-  .rent-btn{ background:var(--teal-900); color:#fff; border:none; padding:7px 13px; border-radius:7px; font-size:11.5px; font-weight:700; cursor:pointer; }
+  .rent-btn{ background:var(--teal-900); color:#fff; border:none; padding:7px 13px; border-radius:7px; font-size:11.5px; font-weight:700; cursor:pointer; text-decoration:none; }
+  .rent-btn.off{ opacity:.5; cursor:not-allowed; }
+  .p-card a.p-link{ color:inherit; text-decoration:none; }
 
   /* Estado: cargando */
   .skeleton{ background:linear-gradient(90deg, #e6e9e6 25%, #f0f2f0 37%, #e6e9e6 63%); background-size:400% 100%; animation:sk 1.3s ease-in-out infinite; }
@@ -82,14 +87,32 @@
   .view{ display:none; }
   .view.on{ display:block; }
   .view.on.grid-view{ display:grid; }
+
+  /* Semana 10: responsive */
+  @media (max-width: 900px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width: 640px){
+    .nav{ padding:14px 16px; gap:14px; flex-wrap:wrap; }
+    .nav-links{ order:3; flex-basis:100%; gap:18px; }
+    .search-panel{ padding:0 16px 18px; }
+    .filters{ padding:12px 16px; }
+    .wrap{ padding:20px 16px 48px; }
+    .grid{ grid-template-columns:1fr; gap:14px; }
+  }
 </style>
 </head>
 <body>
 
 <div class="nav">
   <div class="logo">Alquil<span>-Ar</span></div>
-  <div class="nav-links"><a class="on">Catálogo</a><a>Cómo funciona</a></div>
-  <div class="avatar-chip">SD</div>
+  <div class="nav-links"><a href="catalogo" class="on">Catálogo</a><a href="mis-reservas">Mis reservas</a></div>
+  <div class="nav-user">
+    <?php if (session('isLoggedIn')) : ?>
+      <a href="logout">Salir</a>
+      <div class="avatar-chip" title="<?= esc(session('nombre')) ?>"><?= esc(mb_strtoupper(mb_substr((string) session('nombre'), 0, 1))) ?></div>
+    <?php else : ?>
+      <a href="login" class="login-link">Ingresar</a>
+    <?php endif ?>
+  </div>
 </div>
 
 <div class="search-panel">
@@ -112,7 +135,7 @@
 <div class="wrap">
 
   <!-- ESTADO: cargando -->
-  <div class="view grid-view" id="view-cargando">
+  <div class="view grid-view grid" id="view-cargando">
     <div class="p-card"><div class="p-media skeleton" style="height:112px;"></div><div class="p-body">
       <div class="skeleton" style="height:12px; width:70%; border-radius:4px; margin-bottom:8px;"></div>
       <div class="skeleton" style="height:10px; width:40%; border-radius:4px; margin-bottom:14px;"></div>
@@ -131,17 +154,17 @@
   </div>
 
   <!-- ESTADO: con resultados -->
-  <div class="view grid-view" id="view-resultados">
-    <div class="grid" id="resultsGrid" style="display:contents;"></div>
+  <div class="view grid-view grid" id="view-resultados">
+    <div id="resultsGrid" style="display:contents;"></div>
   </div>
 
   <!-- ESTADO: sin resultados -->
   <div class="view" id="view-vacio">
     <div class="empty-state">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <h3>No encontramos herramientas con esa búsqueda</h3>
-      <p>Probá con otra palabra o sacá algunos filtros.</p>
-      <button onclick="clearFilters()">Limpiar filtros</button>
+      <h3 id="vacioTitulo">No encontramos herramientas con esa búsqueda</h3>
+      <p id="vacioTexto">Probá con otra palabra o sacá algunos filtros.</p>
+      <button id="vacioBtn" onclick="clearFilters()">Limpiar filtros</button>
     </div>
   </div>
 
@@ -151,7 +174,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto;"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
       <h3>No pudimos cargar el catálogo</h3>
       <p>Hubo un problema de conexión. Intentá de nuevo en unos segundos.</p>
-      <button onclick="showView('resultados')">Reintentar</button>
+      <button onclick="location.reload()">Reintentar</button>
     </div>
   </div>
 
@@ -168,26 +191,37 @@
 
   // Datos reales, provistos por el Controller (Catalogo::index -> HerramientaModel::getCatalogoOrdenado)
   const TOOLS = <?= json_encode(array_map(static fn ($h) => [
+      'id'     => (int) $h['id_herramienta'],
       'name'   => $h['nombre'],
       'price'  => (float) $h['precio'],
       'estado' => $h['estado'],
       'foto'   => $h['foto_url'],
-  ], $herramientas)) ?>;
+  ], $herramientas), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+
+  // Los nombres los escribe cada usuario: se escapan antes de meterlos en el HTML.
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
   function renderCards(list){
     const grid = document.getElementById('resultsGrid');
-    grid.innerHTML = list.map(t => `
+    // BACKEND: detalle todavía usa herramientas de ejemplo (id 1 a 6); falta que lea la herramienta de la base por su id.
+    grid.innerHTML = list.map(t => {
+      const url = 'detalle?id=' + encodeURIComponent(t.id);
+      const libre = t.estado === 'disponible';
+      return `
       <div class="p-card">
-        <div class="p-media">${t.foto ? `<img src="${t.foto}" alt="${t.name}" style="width:100%;height:100%;object-fit:cover;">` : ICON_GENERICO}</div>
+        <a class="p-link" href="${url}">
+          <div class="p-media">${t.foto ? `<img src="${esc(t.foto)}" alt="${esc(t.name)}" style="width:100%;height:100%;object-fit:cover;">` : ICON_GENERICO}</div>
+        </a>
         <div class="p-body">
-          <div class="p-cat">${ESTADOS[t.estado] || t.estado}</div>
-          <h3>${t.name}</h3>
+          <div class="p-cat">${esc(ESTADOS[t.estado] || t.estado)}</div>
+          <h3><a class="p-link" href="${url}">${esc(t.name)}</a></h3>
           <div class="price-row">
             <div class="price">$${t.price.toLocaleString('es-AR')}<span> /día</span></div>
-            <button class="rent-btn" ${t.estado !== 'disponible' ? 'disabled style="opacity:.5;cursor:not-allowed;"' : ''}>${t.estado === 'disponible' ? 'Alquilar' : 'No disponible'}</button>
+            ${libre ? `<a class="rent-btn" href="${url}">Alquilar</a>` : `<span class="rent-btn off">No disponible</span>`}
           </div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   function applyFilters(){
@@ -205,6 +239,11 @@
     document.getElementById('resultsCount').textContent = list.length + (list.length === 1 ? ' resultado' : ' resultados');
 
     if(list.length === 0){
+      // Catálogo vacío (nadie publicó todavía) o búsqueda sin resultados: son mensajes distintos.
+      const sinNada = TOOLS.length === 0;
+      document.getElementById('vacioTitulo').textContent = sinNada ? 'Todavía no hay herramientas publicadas' : 'No encontramos herramientas con esa búsqueda';
+      document.getElementById('vacioTexto').textContent = sinNada ? 'Cuando alguien publique una herramienta, la vas a ver acá.' : 'Probá con otra palabra o sacá algunos filtros.';
+      document.getElementById('vacioBtn').style.display = sinNada ? 'none' : '';
       showView('vacio');
     } else {
       renderCards(list);
@@ -222,6 +261,8 @@
     document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
     document.getElementById('view-' + name).classList.add('on');
   }
+
+  document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key === 'Enter') applyFilters(); });
 
   // Estado inicial
   applyFilters();

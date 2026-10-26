@@ -57,6 +57,9 @@
   .switch-line{ text-align:center; font-size:12.5px; color:var(--muted); margin-top:18px; }
   .switch-line a{ color:var(--teal-700); font-weight:700; text-decoration:none; }
 
+  .soon-note{ display:none; font-size:12px; color:var(--muted); background:#fff; border:1px solid var(--line); border-radius:8px; padding:9px 12px; margin-top:12px; text-align:center; }
+  .soon-note.on{ display:block; }
+
   .mobile-logo{ display:none; }
 
   @media (max-width: 760px){
@@ -106,7 +109,7 @@
       </div>
     <?php endif ?>
 
-    <form id="loginForm" method="post" action="/login">
+    <form id="loginForm" method="post" action="login">
       <input type="hidden" name="rol" id="rolInput" value="cliente">
 
       <label class="field-label">Email</label>
@@ -121,18 +124,20 @@
         <div class="field-error">La contraseña debe tener al menos 6 caracteres.</div>
       </div>
 
-      <a href="/olvide-password" class="forgot">¿Olvidaste tu contraseña?</a>
+      <!-- BACKEND: falta la recuperación de contraseña y el ingreso con Google / Facebook. -->
+      <a href="#" class="forgot" onclick="proximamente(event)">¿Olvidaste tu contraseña?</a>
 
       <button type="submit" class="login-btn">Ingresar</button>
     </form>
 
     <div class="divider-or">o continuá con</div>
     <div class="social-row">
-      <button class="social-btn">Google</button>
-      <button class="social-btn">Facebook</button>
+      <button class="social-btn" type="button" onclick="proximamente(event)">Google</button>
+      <button class="social-btn" type="button" onclick="proximamente(event)">Facebook</button>
     </div>
+    <div class="soon-note" id="soonNote">Esta opción todavía no está disponible. Por ahora ingresá con tu email y contraseña.</div>
 
-    <div class="switch-line">¿No tenés cuenta? <a href="/registro">Registrate gratis</a></div>
+    <div class="switch-line">¿No tenés cuenta? <a href="registro">Registrate gratis</a></div>
   </div>
 </div>
 
@@ -141,6 +146,11 @@
     document.getElementById('tab-cliente').classList.toggle('on', role === 'cliente');
     document.getElementById('tab-retador').classList.toggle('on', role === 'retador');
     document.getElementById('rolInput').value = role;
+  }
+
+  function proximamente(e){
+    e.preventDefault();
+    document.getElementById('soonNote').classList.add('on');
   }
 
   // Validación visual básica (front-end). La validación real va en el Controller/Model.

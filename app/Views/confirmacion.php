@@ -81,15 +81,30 @@
 
 .summary-box{display:block}
 .summary-box.on{display:block}
+
+/* ===== Semana 10 ===== */
+body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve agregando ?demo a la dirección */
+@media (max-width:640px){.nav{padding:14px 16px}.wrap{padding:24px 16px 48px}.card{padding:16px}}
 </style>
 </head>
 <body>
+<script>if(/[?&]demo\b/.test(location.search)) document.body.classList.add('demo');</script>
 
 <div class="nav">
   <div class="logo">Alquil<span>-Ar</span></div>
   <a href="detalle" class="back" id="backLink">← Volver / modificar</a>
 </div>
 
+<?php if (! session('isLoggedIn')) : ?>
+<!-- Sin sesión no se muestra la reserva. BACKEND: el Controller también tiene que exigir sesión. -->
+<div class="wrap">
+  <div class="error-view" style="padding:40px 10px;">
+    <h2 style="font-size:19px;margin:0 0 6px;color:var(--ink);">Iniciá sesión para confirmar tu reserva</h2>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 20px;">Tus fechas quedan guardadas. Cuando ingreses, volvé a esta página para seguir.</p>
+    <a href="login" class="btn btn-confirm">Iniciar sesión</a>
+  </div>
+</div>
+<?php else : ?>
 <div class="wrap">
 
   <!-- Barra solo para esta demo: simula los estados sin backend -->
@@ -312,6 +327,7 @@ var AR = (function(){
   });
 })();
 </script>
+<?php endif ?>
 
 </body>
 </html>
