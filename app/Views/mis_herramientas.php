@@ -16,21 +16,12 @@
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
   h1,h2,h3{ font-family:'Space Grotesk',sans-serif; }
 
-  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:16px 24px; background:var(--teal-900); color:#fff; }
-  .logo{ font-size:18px; font-weight:700; }
-  .logo span{ color:var(--amber-500); }
-  .btn-amber{ background:var(--amber-500); color:var(--teal-900); border:none; padding:9px 16px; border-radius:7px; font-size:12.5px; font-weight:700; cursor:pointer; text-decoration:none; }
-  .logo a{ color:inherit; text-decoration:none; }
-  .top-links{ display:flex; gap:6px; flex:1; margin-left:22px; }
-  .top-links a{ color:#CFE0DB; text-decoration:none; font-size:13.5px; padding:7px 12px; border-radius:7px; }
-  .top-links a.on{ color:#fff; background:rgba(255,255,255,.12); font-weight:600; }
-  .top-right{ display:flex; align-items:center; gap:14px; }
-  .top-right .salir{ color:#CFE0DB; text-decoration:none; font-size:13px; }
+  .btn-amber{ display:inline-block; background:var(--amber-500); color:var(--teal-900); border:none; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; }
   .soon-note{ display:none; font-size:12px; color:var(--muted); background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin-bottom:16px; }
   .soon-note.on{ display:block; }
 
   .wrap{ max-width:920px; margin:0 auto; padding:28px 20px 60px; }
-  .wrap h1{ font-size:20px; margin:0 0 18px; }
+  .wrap h1{ font-size:22px; margin:0 0 18px; }
 
   /* Dev toolbar para probar los distintos estados (borrar cuando esté conectado el backend real) */
   .dev-toolbar{
@@ -40,6 +31,7 @@
   .dev-toolbar button{
     border:1px solid #d9a441; background:#fff; border-radius:6px; padding:5px 10px; font-size:11px; cursor:pointer;
   }
+  body:not(.demo) .dev-toolbar{ display:none; }   /* la barra de prueba solo se ve agregando ?demo a la dirección */
 
   .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
   .tool-card{ background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
@@ -49,6 +41,7 @@
   .tool-body h3{ font-size:13.5px; margin:0 0 4px; }
   .tool-status{ font-size:11px; color:var(--success); margin-bottom:10px; }
   .tool-status.paused{ color:var(--muted); }
+  .tool-status.busy{ color:#B96F16; }
   .tool-actions{ display:flex; gap:8px; }
   .tool-actions button{
     flex:1; font-size:11px; font-weight:700; border-radius:6px; padding:7px; cursor:pointer;
@@ -91,28 +84,40 @@
   /* Semana 10: responsive */
   @media (max-width: 820px){ .grid{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width: 560px){
-    .topbar{ padding:12px 16px; flex-wrap:wrap; gap:10px; }
-    .top-links{ order:3; flex-basis:100%; margin-left:0; overflow-x:auto; }
     .wrap{ padding:20px 16px 48px; }
     .grid{ grid-template-columns:1fr; }
   }
 </style>
 </head>
 <body>
+<script>if(/[?&]demo\b/.test(location.search)) document.body.classList.add('demo');</script>
 
-<div class="topbar">
-  <div class="logo"><a href="mis-herramientas">Alquil<span>-Ar</span></a></div>
-  <div class="top-links"><a href="mis-herramientas" class="on">Mis herramientas</a><a href="mis-alquileres">Mis alquileres</a></div>
-  <div class="top-right">
-    <a href="publicar-herramienta" class="btn-amber">+ Publicar nueva</a>
-    <a href="logout" class="salir">Salir</a>
-  </div>
-</div>
+<?= view('partials/nav', ['activo' => 'mis-herramientas']) ?>
 
 <div class="wrap">
+  <!-- Barra solo para esta demo: simula los estados sin backend -->
+  <div class="dev-toolbar">
+    🔧 Vista previa de estados:
+    <button onclick="showView('cargando')">Cargando</button>
+    <button onclick="showView('listado')">Con datos</button>
+    <button onclick="showView('vacio')">Vacío</button>
+    <button onclick="showView('error')">Error</button>
+  </div>
+
   <h1>Mis herramientas</h1>
 
   <div class="soon-note" id="soonNote">Editar y pausar una publicación todavía no está disponible. Muy pronto vas a poder hacerlo desde acá.</div>
+
+  <!-- ESTADO: cargando -->
+  <div class="view grid-view grid" id="view-cargando">
+    <?php for ($i = 0; $i < 3; $i++) : ?>
+    <div class="skeleton-card"><div class="tool-media skeleton"></div><div class="tool-body">
+      <div class="skeleton" style="height:12px; width:70%; border-radius:4px; margin-bottom:8px;"></div>
+      <div class="skeleton" style="height:10px; width:45%; border-radius:4px; margin-bottom:12px;"></div>
+      <div class="skeleton" style="height:26px; width:100%; border-radius:6px;"></div>
+    </div></div>
+    <?php endfor ?>
+  </div>
 
   <!-- ESTADO: con herramientas publicadas -->
   <div class="view grid-view grid" id="view-listado">
@@ -127,15 +132,15 @@
       </div>
       <div class="tool-body">
         <h3><?= esc($h['nombre']) ?></h3>
-        <div class="tool-status<?= $h['estado'] !== 'disponible' ? ' paused' : '' ?>">
-          <?= $h['estado'] === 'disponible' ? '●' : '⏸' ?> <?= esc(['disponible' => 'Disponible', 'alquilada' => 'Alquilada', 'no_disponible' => 'No disponible'][$h['estado']] ?? ucfirst($h['estado'])) ?> · $<?= number_format((float) $h['precio'], 0, ',', '.') ?>/día
+        <div class="tool-status<?= ['disponible' => '', 'alquilada' => ' busy'][$h['estado']] ?? ' paused' ?>">
+          <?= in_array($h['estado'], ['disponible', 'alquilada'], true) ? '●' : '⏸' ?> <?= esc(['disponible' => 'Disponible', 'alquilada' => 'Alquilada', 'no_disponible' => 'No disponible'][$h['estado']] ?? ucfirst($h['estado'])) ?> · $<?= number_format((float) $h['precio'], 0, ',', '.') ?>/día
         </div>
         <!-- BACKEND: faltan las rutas para editar y pausar una herramienta. -->
         <div class="tool-actions"><button class="btn-edit" type="button" onclick="proximamente()">Editar</button><button class="btn-pause" type="button" onclick="proximamente()">Pausar</button></div>
       </div>
     </div>
     <?php endforeach ?>
-    <a href="publicar-herramienta" class="add-card">
+    <a href="<?= site_url('publicar-herramienta') ?>" class="add-card">
       <div style="font-size:24px;">+</div>Publicar nueva
     </a>
   </div>
@@ -146,7 +151,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto;"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/></svg>
       <h3>Todavía no publicaste ninguna herramienta</h3>
       <p>Empezá a generar un ingreso extra publicando algo que tengas y no uses siempre.</p>
-      <a href="publicar-herramienta" class="btn-amber" style="padding:11px 22px;">Publicar mi primera herramienta</a>
+      <a href="<?= site_url('publicar-herramienta') ?>" class="btn-amber" style="padding:11px 22px;">Publicar mi primera herramienta</a>
     </div>
   </div>
 

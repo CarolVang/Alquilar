@@ -13,7 +13,7 @@
   }
   *{box-sizing:border-box;}
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
-  h1,h2{ font-family:'Space Grotesk',sans-serif; }
+  h1,h2,.logo,.mobile-logo{ font-family:'Space Grotesk',sans-serif; }
 
   .wrap{ display:flex; min-height:100vh; }
   .side{
@@ -82,7 +82,7 @@
 
   <div class="form-col">
     <div class="mobile-logo">Alquil<span>-Ar</span></div>
-    <h1 style="font-size:21px; margin:0 0 4px;">Creá tu cuenta</h1>
+    <h1 style="font-size:22px; margin:0 0 4px;">Creá tu cuenta</h1>
     <p style="color:var(--muted); font-size:13px; margin:0 0 18px;">Elegí cómo vas a usar Alquil-Ar</p>
 
     <div class="role-toggle">
@@ -96,7 +96,7 @@
       </div>
     <?php endif ?>
 
-    <form id="regForm" method="post" action="registro">
+    <form id="regForm" novalidate method="post" action="<?= site_url('registro') ?>">
       <input type="hidden" name="rol" id="rolInput" value="<?= esc(old('rol', 'cliente')) ?>">
 
       <div class="field-group" id="group-nombre">
@@ -137,15 +137,18 @@
         </div>
       </div>
 
-      <div class="terms-row">
-        <input type="checkbox" id="terms" required>
-        <label for="terms">Acepto los Términos y Condiciones y la Política de Privacidad de Alquil-Ar.</label>
+      <div class="field-group" id="group-terms" style="margin-bottom:0;">
+        <div class="terms-row">
+          <input type="checkbox" id="terms" required>
+          <label for="terms">Acepto los Términos y Condiciones y la Política de Privacidad de Alquil-Ar.</label>
+        </div>
+        <div class="field-error">Tenés que aceptar los términos para crear tu cuenta.</div>
       </div>
 
       <button type="submit" class="btn">Crear cuenta</button>
     </form>
 
-    <div class="switch-line">¿Ya tenés cuenta? <a href="login">Iniciar sesión</a></div>
+    <div class="switch-line">¿Ya tenés cuenta? <a href="<?= site_url('login') ?>">Iniciar sesión</a></div>
   </div>
 </div>
 
@@ -155,6 +158,8 @@
     document.getElementById('tab-retador').classList.toggle('on', role === 'retador');
     document.getElementById('rolInput').value = role;
   }
+  // Si el servidor devolvió un error, se vuelve a marcar el rol que la persona había elegido.
+  setRole(document.getElementById('rolInput').value === 'retador' ? 'retador' : 'cliente');
 
   // Validación visual básica (front-end). La validación real va en el Controller/Model.
   document.getElementById('regForm').addEventListener('submit', function(e){
@@ -172,6 +177,13 @@
       document.getElementById('group-email').classList.add('has-error');
       valid = false;
     }
+    if(f.password.value && f.password.value.length < 6){
+      document.getElementById('group-password').classList.add('has-error');
+      valid = false;
+    }
+    const terms = document.getElementById('terms');
+    document.getElementById('group-terms').classList.toggle('has-error', !terms.checked);
+    if(!terms.checked) valid = false;
     document.getElementById('group-password2').classList.remove('has-error');
     if(f.password.value !== f.password2.value || !f.password2.value){
       document.getElementById('group-password2').classList.add('has-error');

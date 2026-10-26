@@ -16,13 +16,10 @@
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
   h1,h2,h3{ font-family:'Space Grotesk',sans-serif; }
 
-  .nav{ display:flex; align-items:center; gap:20px; padding:16px 40px; background:var(--teal-900); color:#fff; }
-  .logo{ font-size:20px; font-weight:700; }
-  .logo span{ color:var(--amber-500); }
-  .back{ color:#CFE0DB; text-decoration:none; font-size:13px; flex:1; }
-  .avatar-chip{ width:32px; height:32px; border-radius:50%; background:var(--amber-500); color:var(--teal-900); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.5px; }
+  .back-link{ display:inline-block; color:var(--teal-600); font-size:13px; font-weight:600; text-decoration:none; }
+  .back-row{ max-width:1180px; margin:0 auto; padding:22px 24px 0; }
 
-  .detail-wrap{ display:grid; grid-template-columns:1.15fr 0.85fr; gap:32px; max-width:1180px; margin:0 auto; padding:30px 24px 60px; }
+  .detail-wrap{ display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,0.85fr); gap:32px; max-width:1180px; margin:0 auto; padding:16px 24px 60px; }
 
   .gallery-main{ height:260px; background:var(--teal-100); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--teal-700); margin-bottom:10px; }
   .gallery-main svg{ width:56px; height:56px; }
@@ -44,7 +41,7 @@
   .booking-card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px 22px 24px; align-self:start; position:sticky; top:20px; }
   .booking-card h3{ font-size:15px; margin:0 0 4px; }
   .price-line{ font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; color:var(--teal-900); margin-bottom:16px; }
-  .price-line span{ font-size:11.5px; font-weight:500; color:var(--muted); font-family:'Inter',sans-serif; }
+  .price-line span:not(#dPrice){ font-size:11.5px; font-weight:500; color:var(--muted); font-family:'Inter',sans-serif; }
 
   .avail-legend{ display:flex; gap:14px; font-size:10.5px; color:var(--muted); margin:10px 0 6px; }
   .avail-legend span{ display:inline-flex; align-items:center; gap:5px; }
@@ -113,38 +110,25 @@
 .nf a{display:inline-block;margin-top:10px;background:var(--teal-900);color:#fff;padding:11px 20px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none}
 @media (max-width:560px){.form-row{flex-direction:column;gap:0}}
 
-/* ===== Semana 10: menú y responsive ===== */
-.nav-user{display:flex;align-items:center;gap:12px;font-size:13px}
-.nav-user a{color:#CFE0DB;text-decoration:none}
-.nav-user a.login-link{background:var(--amber-500);color:var(--teal-900);font-weight:700;padding:8px 14px;border-radius:7px}
+/* ===== Semana 10: responsive ===== */
 @media (max-width:640px){
-  .nav{padding:14px 16px;gap:12px}
-  .detail-wrap{padding:20px 16px 48px;gap:22px}
+  .back-row{padding:16px 16px 0}
+  .detail-wrap{padding:12px 16px 48px;gap:22px}
   .gallery-main{height:200px}
   .booking-card{padding:18px 16px 20px}
 }
-@media (max-width:420px){.nav-user a[href="mis-reservas"]{display:none}}
 </style>
 </head>
 <body>
 
-<div class="nav">
-  <div class="logo">Alquil<span>-Ar</span></div>
-  <a href="catalogo" class="back">← Volver al catálogo</a>
-  <div class="nav-user">
-    <?php if (session('isLoggedIn')) : ?>
-      <a href="mis-reservas">Mis reservas</a>
-      <div class="avatar-chip" title="<?= esc(session('nombre')) ?>"><?= esc(mb_strtoupper(mb_substr((string) session('nombre'), 0, 1))) ?></div>
-    <?php else : ?>
-      <a href="login" class="login-link">Ingresar</a>
-    <?php endif ?>
-  </div>
-</div>
+<?= view('partials/nav', ['activo' => 'catalogo']) ?>
+
+<div class="back-row"><a href="<?= site_url('catalogo') ?>" class="back-link">← Volver al catálogo</a></div>
 
 <div class="nf" id="notFound" style="display:none">
   <h2>No encontramos esa herramienta</h2>
   <p>Puede que ya no esté publicada o que el link esté incompleto.</p>
-  <a href="catalogo">Volver al catálogo</a>
+  <a href="<?= site_url('catalogo') ?>">Volver al catálogo</a>
 </div>
 
 <div class="detail-wrap" id="detalleWrap">
@@ -458,7 +442,7 @@ var AR = (function(){
     if(AR.rangoOcupado(tool, f.inicio, f.fin)){ toast('Ese período incluye días ocupados. Elegí otro.'); return; }
     var ok = AR.ls('alquilar_reserva', {toolId: tool.id, inicio: f.inicio, fin: f.fin, retiro: f.retiro, devolucion: f.devolucion, total: r.total});
     if(!ok){ toast('No pudimos guardar tu selección. Revisá que el navegador permita guardar datos del sitio.'); return; }
-    location.href = 'confirmacion';
+    location.href = <?= json_encode(site_url('confirmacion')) ?>;
   });
 
   render();

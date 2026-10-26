@@ -16,10 +16,7 @@
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
   h1,h2,h3{ font-family:'Space Grotesk',sans-serif; }
 
-  .nav{ display:flex; align-items:center; gap:14px; padding:16px 40px; background:var(--teal-900); color:#fff; }
-  .logo{ font-size:18px; font-weight:700; }
-  .logo span{ color:var(--amber-500); }
-  .back{ color:#CFE0DB; text-decoration:none; font-size:13px; flex:1; }
+  .back-link{ display:inline-block; color:var(--teal-600); font-size:13px; font-weight:600; text-decoration:none; margin-bottom:14px; }
 
   .wrap{ max-width:560px; margin:0 auto; padding:34px 20px 60px; }
 
@@ -34,7 +31,7 @@
   .view.on{ display:block; }
 
   /* ===== Vista: Resumen ===== */
-  h1.title{ font-size:20px; margin:0 0 18px; }
+  h1.title{ font-size:22px; margin:0 0 18px; }
   .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 22px; margin-bottom:16px; }
   .tool-row{ display:flex; gap:14px; align-items:center; margin-bottom:6px; }
   .tool-media{ width:64px; height:64px; border-radius:10px; background:var(--teal-100); display:flex; align-items:center; justify-content:center; color:var(--teal-700); flex-shrink:0; }
@@ -84,16 +81,13 @@
 
 /* ===== Semana 10 ===== */
 body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve agregando ?demo a la dirección */
-@media (max-width:640px){.nav{padding:14px 16px}.wrap{padding:24px 16px 48px}.card{padding:16px}}
+@media (max-width:640px){.wrap{padding:24px 16px 48px}.card{padding:16px}}
 </style>
 </head>
 <body>
 <script>if(/[?&]demo\b/.test(location.search)) document.body.classList.add('demo');</script>
 
-<div class="nav">
-  <div class="logo">Alquil<span>-Ar</span></div>
-  <a href="detalle" class="back" id="backLink">← Volver / modificar</a>
-</div>
+<?= view('partials/nav', ['activo' => '']) ?>
 
 <?php if (! session('isLoggedIn')) : ?>
 <!-- Sin sesión no se muestra la reserva. BACKEND: el Controller también tiene que exigir sesión. -->
@@ -101,11 +95,12 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
   <div class="error-view" style="padding:40px 10px;">
     <h2 style="font-size:19px;margin:0 0 6px;color:var(--ink);">Iniciá sesión para confirmar tu reserva</h2>
     <p style="color:var(--muted);font-size:13px;margin:0 0 20px;">Tus fechas quedan guardadas. Cuando ingreses, volvé a esta página para seguir.</p>
-    <a href="login" class="btn btn-confirm">Iniciar sesión</a>
+    <a href="<?= site_url('login') ?>" class="btn btn-confirm">Iniciar sesión</a>
   </div>
 </div>
 <?php else : ?>
 <div class="wrap">
+  <a href="<?= site_url('detalle') ?>" class="back-link" id="backLink">← Volver / modificar</a>
 
   <!-- Barra solo para esta demo: simula los estados sin backend -->
   <div class="dev-toolbar">
@@ -144,7 +139,7 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
       <span class="spinner" id="spinner"></span>
       <span id="btnText">Confirmar y pagar</span>
     </button>
-    <a href="detalle" class="btn btn-back" id="btnVolver">Volver y modificar</a>
+    <a href="<?= site_url('detalle') ?>" class="btn btn-back" id="btnVolver">Volver y modificar</a>
   </div>
 
   <!-- ESTADO: Sin reserva en curso -->
@@ -152,7 +147,7 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
     <div class="error-view" style="padding:40px 10px;">
       <h2 style="font-size:19px;margin:0 0 6px;">No hay una reserva en curso</h2>
       <p style="color:var(--muted);font-size:13px;margin:0 0 20px;">Elegí una herramienta y un período para ver el resumen acá.</p>
-      <a href="catalogo" class="btn btn-confirm">Ir al catálogo</a>
+      <a href="<?= site_url('catalogo') ?>" class="btn btn-confirm">Ir al catálogo</a>
     </div>
   </div>
 
@@ -164,7 +159,7 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
       </div>
       <h2>No pudimos confirmar tu reserva</h2>
       <p id="errMsg">Hubo un problema. Probá de nuevo.</p>
-      <a href="detalle" class="btn btn-confirm" id="btnErrVolver">Volver y elegir otro período</a>
+      <a href="<?= site_url('detalle') ?>" class="btn btn-confirm" id="btnErrVolver">Volver y elegir otro período</a>
     </div>
   </div>
 
@@ -293,9 +288,9 @@ var AR = (function(){
 
   var data = AR.ls('alquilar_reserva');
   var tool = data ? AR.tool(data.toolId) : null;
-  if(!data || !tool){ showView('vacio'); return; }
+  if(!data || !tool){ $('backLink').href = <?= json_encode(site_url('catalogo')) ?>; $('backLink').textContent = '← Volver al catálogo'; showView('vacio'); return; }
 
-  var back = 'detalle?id=' + tool.id;
+  var back = <?= json_encode(site_url('detalle')) ?> + '?id=' + tool.id;
   $('backLink').href = back; $('btnVolver').href = back; $('btnErrVolver').href = back;
   $('cIcon').innerHTML = AR.icon(tool.icon);
   $('cName').textContent = tool.name;
@@ -322,7 +317,7 @@ var AR = (function(){
         b.disabled = false; $('spinner').style.display = 'none'; $('btnText').textContent = 'Confirmar y pagar';
         falla('Esas fechas ya no están disponibles. Volvé a elegir otro período.'); return;
       }
-      location.href = 'pago';
+      location.href = <?= json_encode(site_url('pago')) ?>;
     }, 800);
   });
 })();

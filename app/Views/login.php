@@ -13,7 +13,7 @@
   }
   *{box-sizing:border-box;}
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
-  h1,h2{ font-family:'Space Grotesk',sans-serif; }
+  h1,h2,.logo,.mobile-logo{ font-family:'Space Grotesk',sans-serif; }
 
   .login-wrap{ display:flex; min-height:100vh; }
   .login-side{
@@ -92,6 +92,7 @@
     <h1 style="font-size:22px; margin:0 0 4px;">Bienvenido/a de vuelta</h1>
     <p style="color:var(--muted); font-size:13px; margin:0 0 20px;">Ingresá a tu cuenta para continuar</p>
 
+    <!-- BACKEND: el login envía "rol" pero Auth::attemptLogin no lo usa; el menú toma el rol guardado al registrarse. -->
     <div class="role-toggle">
       <div class="on" id="tab-cliente" onclick="setRole('cliente')">Soy Cliente</div>
       <div id="tab-retador" onclick="setRole('retador')">Soy Retador</div>
@@ -109,7 +110,7 @@
       </div>
     <?php endif ?>
 
-    <form id="loginForm" method="post" action="login">
+    <form id="loginForm" novalidate method="post" action="<?= site_url('login') ?>">
       <input type="hidden" name="rol" id="rolInput" value="cliente">
 
       <label class="field-label">Email</label>
@@ -137,7 +138,7 @@
     </div>
     <div class="soon-note" id="soonNote">Esta opción todavía no está disponible. Por ahora ingresá con tu email y contraseña.</div>
 
-    <div class="switch-line">¿No tenés cuenta? <a href="registro">Registrate gratis</a></div>
+    <div class="switch-line">¿No tenés cuenta? <a href="<?= site_url('registro') ?>">Registrate gratis</a></div>
   </div>
 </div>
 

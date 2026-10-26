@@ -20,7 +20,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
 .btn-ghost{background:#fff;color:var(--teal-900);border:1.5px solid var(--line)}
 .btn-block{width:100%}
 .btn[disabled]{opacity:.6;cursor:default}
-.page-title{font-size:21px;margin:0 0 4px}
+.page-title{font-size:22px;margin:0 0 4px}
 .page-sub{color:var(--muted);font-size:13px;margin:0 0 20px}
 .back-link{display:inline-block;color:var(--teal-600);font-size:13px;font-weight:600;text-decoration:none;margin-bottom:14px}
 .view{display:none}.view.on{display:block}
@@ -67,9 +67,6 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
   .row .side{flex-direction:row;align-items:center;justify-content:space-between;width:100%;text-align:left}
 }
 
-.nav{display:flex;align-items:center;gap:14px;padding:16px 40px;background:var(--teal-900);color:#fff}
-.logo{font-size:18px;font-weight:700}.logo span{color:var(--amber-500)}
-.back{color:#CFE0DB;text-decoration:none;font-size:13px;flex:1}
 .dev-toolbar{display:flex}
 .pay-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:start}
 .field{margin-bottom:14px}
@@ -89,7 +86,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
 .confirm-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:12.5px;border-bottom:1px dashed var(--line)}
 .confirm-row:last-child{border-bottom:none}
 .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-@media (max-width:760px){.pay-grid{grid-template-columns:1fr}#resumen{order:-1}.nav{padding:14px 16px}}
+@media (max-width:760px){.pay-grid{grid-template-columns:1fr}#resumen{order:-1}}
 
 /* ===== Semana 10 ===== */
 body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve agregando ?demo a la dirección */
@@ -99,10 +96,7 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
 <body>
 <script>if(/[?&]demo\b/.test(location.search)) document.body.classList.add('demo');</script>
 
-<div class="nav">
-  <div class="logo">Alquil<span>-Ar</span></div>
-  <a href="confirmacion" class="back" id="backTop">← Volver al resumen</a>
-</div>
+<?= view('partials/nav', ['activo' => '']) ?>
 
 <?php if (! session('isLoggedIn')) : ?>
 <!-- Sin sesión no se puede pagar. BACKEND: el Controller también tiene que exigir sesión. -->
@@ -111,11 +105,12 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
     <h2>Iniciá sesión para pagar tu reserva</h2>
     <p>Tus fechas quedan guardadas. Cuando ingreses, volvé al resumen para seguir.</p>
-    <a href="login" class="btn btn-primary">Iniciar sesión</a>
+    <a href="<?= site_url('login') ?>" class="btn btn-primary">Iniciar sesión</a>
   </div>
 </div>
 <?php else : ?>
 <div class="wrap" style="max-width:900px">
+  <a href="<?= site_url('confirmacion') ?>" class="back-link" id="backTop">← Volver al resumen</a>
 
   <!-- Barra solo para esta demo: simula los estados sin backend -->
   <div class="dev-toolbar">
@@ -180,7 +175,7 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
       <h2>¡Pago exitoso! Tu reserva está confirmada</h2>
       <p id="okTxt" style="color:var(--muted)"></p>
       <div class="confirm-card" id="okCard"></div>
-      <div class="actions"><a href="mis-reservas" class="btn btn-primary">Ver mis reservas</a><a href="catalogo" class="btn btn-ghost">Seguir buscando</a></div>
+      <div class="actions"><a href="<?= site_url('mis-reservas') ?>" class="btn btn-primary">Ver mis reservas</a><a href="<?= site_url('catalogo') ?>" class="btn btn-ghost">Seguir buscando</a></div>
     </div>
   </div>
 
@@ -190,7 +185,7 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
       <h2>Tu pago fue rechazado</h2>
       <p>El banco no aprobó la operación (por ejemplo, fondos insuficientes). No se te cobró nada. Probá con otra tarjeta.</p>
-      <div class="actions"><button class="btn btn-dark" type="button" onclick="demo('form')">Probar con otra tarjeta</button><a href="confirmacion" class="btn btn-ghost">Volver al resumen</a></div>
+      <div class="actions"><button class="btn btn-dark" type="button" onclick="demo('form')">Probar con otra tarjeta</button><a href="<?= site_url('confirmacion') ?>" class="btn btn-ghost">Volver al resumen</a></div>
     </div>
   </div>
 
@@ -210,7 +205,7 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/></svg>
       <h2>No hay una reserva para pagar</h2>
       <p>Elegí una herramienta y un período, y confirmá el resumen para llegar hasta acá.</p>
-      <a href="catalogo" class="btn btn-primary">Ir al catálogo</a>
+      <a href="<?= site_url('catalogo') ?>" class="btn btn-primary">Ir al catálogo</a>
     </div>
   </div>
 
@@ -345,8 +340,7 @@ var AR = (function(){
     r = AR.calcularPrecio({precioDia: tool.price, inicio: data.inicio, fin: data.fin, retiro: data.retiro, devolucion: data.devolucion});
     if(!r.ok || r.total !== data.total){ r = null; }
   }
-  if(!tool || !r){ demo('vacio'); } else {
-    $('backTop').href = 'confirmacion';
+  if(!tool || !r){ $('backTop').href = <?= json_encode(site_url('catalogo')) ?>; $('backTop').textContent = '← Volver al catálogo'; demo('vacio'); } else {
     $('btnPagar').textContent = 'Pagar ' + AR.fmt(r.total);
     $('resumen').innerHTML =
       '<h3 style="margin:0 0 12px;font-size:15px">Resumen de tu reserva</h3>' +

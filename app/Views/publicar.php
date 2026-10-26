@@ -16,12 +16,8 @@
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
   h1,h2{ font-family:'Space Grotesk',sans-serif; }
 
-  .topbar{ display:flex; align-items:center; gap:14px; padding:16px 24px; background:var(--teal-900); color:#fff; }
-  .logo{ font-size:18px; font-weight:700; }
-  .logo span{ color:var(--amber-500); }
-  .back{ color:#CFE0DB; text-decoration:none; font-size:13px; }
-  .logo a{ color:inherit; text-decoration:none; }
 
+  .back-link{ display:inline-block; color:var(--teal-600); font-size:13px; font-weight:600; text-decoration:none; margin-bottom:14px; }
   .wrap{ max-width:620px; margin:0 auto; padding:32px 20px 60px; }
   .card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:26px 28px; }
 
@@ -78,7 +74,6 @@
 
   /* Semana 10: responsive */
   @media (max-width: 560px){
-    .topbar{ padding:14px 16px; }
     .wrap{ padding:22px 16px 48px; }
     .card{ padding:20px 16px; }
     .form-row{ flex-direction:column; gap:0; }
@@ -87,13 +82,11 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="logo"><a href="mis-herramientas">Alquil<span>-Ar</span></a></div>
-  <a href="mis-herramientas" class="back">← Volver a mis herramientas</a>
-</div>
+<?= view('partials/nav', ['activo' => 'mis-herramientas']) ?>
 
 <div class="wrap">
-  <h1 style="font-size:20px; margin:0 0 4px;">Publicar nueva herramienta</h1>
+  <a href="<?= site_url('mis-herramientas') ?>" class="back-link">← Volver a mis herramientas</a>
+  <h1 style="font-size:22px; margin:0 0 4px;">Publicar nueva herramienta</h1>
   <p style="color:var(--muted); font-size:13px; margin:0 0 18px;">Completá los datos para que otros usuarios puedan encontrarla y alquilarla.</p>
 
   <div class="card">
@@ -102,7 +95,7 @@
     <div class="banner error" id="bannerError">⚠️ No pudimos publicar la herramienta. Revisá los datos e intentá de nuevo.</div>
 
     <!-- Formulario -->
-    <form id="publicarForm">
+    <form id="publicarForm" novalidate>
       <!-- BACKEND: la subida de fotos todavía no está conectada (el servidor no recibe archivos). -->
       <div class="upload-box" id="uploadBox">
         <svg class="stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto; display:block;">
@@ -164,7 +157,7 @@
       </div>
       <h2>¡Herramienta publicada!</h2>
       <p>Ya está visible para que otros usuarios la encuentren y la alquilen.</p>
-      <a href="mis-herramientas" class="btn">Ver mis herramientas</a>
+      <a href="<?= site_url('mis-herramientas') ?>" class="btn">Ver mis herramientas</a>
     </div>
 
   </div>
@@ -208,7 +201,7 @@
     spinner.style.display = 'inline-block';
     btnText.textContent = 'Publicando...';
 
-    fetch('publicar-herramienta', {
+    fetch(<?= json_encode(site_url('publicar-herramienta')) ?>, {
       method: 'POST',
       body: new FormData(form),
       headers: { 'X-Requested-With': 'XMLHttpRequest' },

@@ -20,7 +20,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
 .btn-ghost{background:#fff;color:var(--teal-900);border:1.5px solid var(--line)}
 .btn-block{width:100%}
 .btn[disabled]{opacity:.6;cursor:default}
-.page-title{font-size:21px;margin:0 0 4px}
+.page-title{font-size:22px;margin:0 0 4px}
 .page-sub{color:var(--muted);font-size:13px;margin:0 0 20px}
 .back-link{display:inline-block;color:var(--teal-600);font-size:13px;font-weight:600;text-decoration:none;margin-bottom:14px}
 .view{display:none}.view.on{display:block}
@@ -67,14 +67,6 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
   .row .side{flex-direction:row;align-items:center;justify-content:space-between;width:100%;text-align:left}
 }
 
-.nav{display:flex;align-items:center;gap:22px;padding:14px 40px;background:var(--teal-900);color:#fff}
-.nav .logo{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#fff;text-decoration:none}
-.nav .logo span{color:var(--amber-500)}
-.nav .links{display:flex;gap:6px;flex:1}
-.nav .links a{color:#CFE0DB;text-decoration:none;font-size:13.5px;padding:7px 12px;border-radius:7px}
-.nav .links a.on{color:#fff;background:rgba(255,255,255,.12);font-weight:600}
-.nav .pub{background:var(--amber-500);color:var(--teal-900);font-weight:700;font-size:12.5px;padding:8px 14px;border-radius:7px;text-decoration:none}
-.nav .avatar{width:32px;height:32px;border-radius:50%;background:var(--amber-500);color:var(--teal-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
 .dev-toolbar{display:flex}
 a.mini{text-decoration:none;display:inline-block}
 .mini.dark{background:var(--teal-900);color:#fff}
@@ -86,25 +78,17 @@ a.mini{text-decoration:none;display:inline-block}
 .toast-ar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--teal-900);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:5;max-width:90vw;text-align:center}
 .toast-ar.on{opacity:1}.toast-ar.bad{background:var(--danger)}
 .priv{font-size:11px;color:var(--muted);font-style:italic}
-@media (max-width:640px){.nav{padding:12px 16px;flex-wrap:wrap;gap:10px}.nav .links{order:3;flex-basis:100%;overflow-x:auto}.stats{grid-template-columns:1fr}}
+@media (max-width:640px){.stats{grid-template-columns:1fr}}
 
 /* ===== Semana 10 ===== */
 body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve agregando ?demo a la dirección */
-.nav .salir{color:#CFE0DB;text-decoration:none;font-size:13px}
 @media (max-width:640px){.row .side{flex-wrap:wrap;gap:8px}}
 </style>
 </head>
 <body>
 <script>if(/[?&]demo\b/.test(location.search)) document.body.classList.add('demo');</script>
 
-<div class="nav">
-  <a class="logo" href="catalogo">Alquil<span>-Ar</span></a>
-  <div class="links"><a href="catalogo">Catálogo</a><a href="mis-reservas" class="on">Mis reservas</a></div>
-  <?php if (session('isLoggedIn')) : ?>
-    <a href="logout" class="salir">Salir</a>
-    <div class="avatar" title="<?= esc(session('nombre')) ?>"><?= esc(mb_strtoupper(mb_substr((string) session('nombre'), 0, 1))) ?></div>
-  <?php endif ?>
-</div>
+<?= view('partials/nav', ['activo' => 'mis-reservas']) ?>
 
 <?php if (! session('isLoggedIn')) : ?>
 <!-- Las reservas son información privada: sin sesión no se muestran. BACKEND: el Controller también tiene que exigir sesión. -->
@@ -113,7 +97,7 @@ body:not(.demo) .dev-toolbar{display:none}   /* la barra de prueba solo se ve ag
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
     <h2>Iniciá sesión para ver tus reservas</h2>
     <p>Tus reservas son privadas: solo las ves vos con tu cuenta.</p>
-    <a href="login" class="btn btn-primary">Iniciar sesión</a>
+    <a href="<?= site_url('login') ?>" class="btn btn-primary">Iniciar sesión</a>
   </div>
 </div>
 <?php else : ?>
@@ -249,6 +233,7 @@ var AR = (function(){
           ls:ls,rol:rol,lista:lista,guardar:guardar,ESTADOS:ESTADOS,SERVICIO:SERVICIO,JORNADA_HS:JORNADA_HS,MAX_DIAS:MAX_DIAS};
 })();
 
+var URL_DETALLE = <?= json_encode(site_url('detalle')) ?>;
 function $(i){ return document.getElementById(i); }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function fechas(r){ return r.inicio === r.fin ? AR.fechaCorta(r.inicio) : AR.fechaCorta(r.inicio) + ' al ' + AR.fechaCorta(r.fin); }
@@ -263,7 +248,7 @@ function errorHTML(titulo){ return '<div class="state error"><svg viewBox="0 0 2
 (function(){
   var TABS = [{k:'actuales', t:'Actuales', e:['confirmada','retirada']}, {k:'pasadas', t:'Pasadas', e:['devuelta']}, {k:'canceladas', t:'Canceladas', e:['cancelada']}];
   var VACIO = {
-    actuales: ['No tenés reservas actuales', 'Cuando alquiles una herramienta, la vas a ver acá.', ['catalogo', 'Buscar herramientas']],
+    actuales: ['No tenés reservas actuales', 'Cuando alquiles una herramienta, la vas a ver acá.', [<?= json_encode(site_url('catalogo')) ?>, 'Buscar herramientas']],
     pasadas: ['Todavía no tenés reservas pasadas', 'Las reservas que ya devolviste van a aparecer acá.', null],
     canceladas: ['No cancelaste ninguna reserva', 'Si cancelás una, queda registrada acá.', null]
   };
@@ -275,7 +260,7 @@ function errorHTML(titulo){ return '<div class="state error"><svg viewBox="0 0 2
   window.vista = function(v){ vacio = (v === 'vacio'); estado = (v === 'cargando' || v === 'error') ? v : 'datos'; render(); };
 
   function fila(r){
-    var acciones = '<a class="mini dark" href="detalle?id=' + encodeURIComponent(r.toolId) + '">Ver herramienta</a>';
+    var acciones = '<a class="mini dark" href="' + URL_DETALLE + '?id=' + encodeURIComponent(r.toolId) + '">Ver herramienta</a>';
     if(r.estado === 'confirmada') acciones += ' <button class="mini line" type="button" data-cancel="' + esc(r.id) + '">Cancelar reserva</button>';
     return '<div class="row"><div class="ic">' + iconoDe(r) + '</div><div class="main"><h3>' + esc(r.tool) + '</h3>' +
       '<div class="meta">Retador: <b>' + esc(r.owner) + '</b> · N° <b>#' + esc(r.id) + '</b><br>' + fechas(r) + ' · ' + esc(r.retiro) + ' a ' + esc(r.devolucion) + '</div></div>' +

@@ -16,21 +16,11 @@
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
   h1,h2,h3{ font-family:'Space Grotesk',sans-serif; }
 
-  .nav{ display:flex; align-items:center; gap:28px; padding:16px 40px; background:var(--teal-900); color:#fff; }
-  .logo{ font-size:20px; font-weight:700; }
-  .logo span{ color:var(--amber-500); }
-  .nav-links{ display:flex; gap:24px; font-size:14px; color:#CFE0DB; flex:1; }
-  .nav-links a{ color:inherit; text-decoration:none; }
-  .nav-links a.on{ color:#fff; font-weight:700; }
-  .avatar-chip{ width:32px; height:32px; border-radius:50%; background:var(--amber-500); color:var(--teal-900); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.5px; }
-  .nav-user{ display:flex; align-items:center; gap:12px; font-size:13px; }
-  .nav-user a{ color:#CFE0DB; text-decoration:none; }
-  .nav-user a.login-link{ background:var(--amber-500); color:var(--teal-900); font-weight:700; padding:8px 14px; border-radius:7px; }
-
   .search-panel{ background:var(--teal-900); padding:0 40px 26px; }
   .search-bar{ display:flex; background:#fff; border-radius:10px; padding:6px; max-width:620px; }
   .search-bar input{ border:none; outline:none; flex:1; padding:10px 14px; font-size:13.5px; font-family:inherit; color:var(--ink); }
-  .search-bar button{ background:var(--amber-500); border:none; color:var(--teal-900); font-weight:700; padding:0 20px; border-radius:7px; font-size:13.5px; cursor:pointer; }
+  .search-bar button{ background:var(--amber-500); border:none; color:var(--teal-900); font-weight:700; padding:0 20px; border-radius:7px; font-size:13.5px; cursor:pointer; font-family:inherit; }
+  .search-panel h1{ color:#fff; font-size:22px; margin:0 0 12px; padding-top:6px; }
 
   .filters{ display:flex; gap:10px; padding:16px 40px; background:#fff; border-bottom:1px solid var(--line); flex-wrap:wrap; align-items:center; }
   .filters select, .filters .chip{
@@ -48,6 +38,7 @@
     border-radius:8px; font-size:11.5px; color:#7a5a12; flex-wrap:wrap; align-items:center;
   }
   .dev-toolbar button{ border:1px solid #d9a441; background:#fff; border-radius:6px; padding:5px 10px; font-size:11px; cursor:pointer; }
+  body:not(.demo) .dev-toolbar{ display:none; }   /* la barra de prueba solo se ve agregando ?demo a la dirección */
 
   .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
   .p-card{ background:var(--card); border-radius:12px; overflow:hidden; border:1px solid var(--line); }
@@ -91,9 +82,9 @@
   /* Semana 10: responsive */
   @media (max-width: 900px){ .grid{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width: 640px){
-    .nav{ padding:14px 16px; gap:14px; flex-wrap:wrap; }
-    .nav-links{ order:3; flex-basis:100%; gap:18px; }
     .search-panel{ padding:0 16px 18px; }
+    .search-panel h1{ font-size:19px; }
+    .search-bar button{ padding:0 14px; }
     .filters{ padding:12px 16px; }
     .wrap{ padding:20px 16px 48px; }
     .grid{ grid-template-columns:1fr; gap:14px; }
@@ -101,21 +92,12 @@
 </style>
 </head>
 <body>
+<script>if(/[?&]demo\b/.test(location.search)) document.body.classList.add('demo');</script>
 
-<div class="nav">
-  <div class="logo">Alquil<span>-Ar</span></div>
-  <div class="nav-links"><a href="catalogo" class="on">Catálogo</a><a href="mis-reservas">Mis reservas</a></div>
-  <div class="nav-user">
-    <?php if (session('isLoggedIn')) : ?>
-      <a href="logout">Salir</a>
-      <div class="avatar-chip" title="<?= esc(session('nombre')) ?>"><?= esc(mb_strtoupper(mb_substr((string) session('nombre'), 0, 1))) ?></div>
-    <?php else : ?>
-      <a href="login" class="login-link">Ingresar</a>
-    <?php endif ?>
-  </div>
-</div>
+<?= view('partials/nav', ['activo' => 'catalogo']) ?>
 
 <div class="search-panel">
+  <h1>Catálogo</h1>
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="¿Qué querés alquilar? Ej: taladro, andamio, bote...">
     <button onclick="applyFilters()">Buscar</button>
@@ -133,6 +115,15 @@
 </div>
 
 <div class="wrap">
+
+  <!-- Barra solo para esta demo: simula los estados sin backend -->
+  <div class="dev-toolbar">
+    🔧 Vista previa de estados:
+    <button onclick="showView('cargando')">Cargando</button>
+    <button onclick="applyFilters()">Con datos</button>
+    <button onclick="showView('vacio')">Vacío</button>
+    <button onclick="showView('error')">Error</button>
+  </div>
 
   <!-- ESTADO: cargando -->
   <div class="view grid-view grid" id="view-cargando">
@@ -181,6 +172,7 @@
 </div>
 
 <script>
+  const URL_DETALLE = <?= json_encode(site_url('detalle')) ?>;
   const ICON_GENERICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="12" height="6" rx="1"/><path d="M16 12h4v2h-4"/></svg>';
 
   const ESTADOS = {
@@ -205,7 +197,7 @@
     const grid = document.getElementById('resultsGrid');
     // BACKEND: detalle todavía usa herramientas de ejemplo (id 1 a 6); falta que lea la herramienta de la base por su id.
     grid.innerHTML = list.map(t => {
-      const url = 'detalle?id=' + encodeURIComponent(t.id);
+      const url = URL_DETALLE + '?id=' + encodeURIComponent(t.id);
       const libre = t.estado === 'disponible';
       return `
       <div class="p-card">
