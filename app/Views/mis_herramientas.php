@@ -1,3 +1,4 @@
+<?php /** @var array $herramientas  Lo manda el controller Herramientas::mis */ ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
