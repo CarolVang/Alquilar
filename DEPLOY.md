@@ -83,6 +83,25 @@ Como no hay consola, `php spark migrate` no se puede correr ahí. En cambio:
 3. Click en **Go**. Deberían aparecer 5 tablas: `usuarios`, `herramientas`,
    `alquileres`, `pagos`, `migrations`.
 
+> **Nota de algo que falló la primera vez (deploy real, 26 oct 2026):**
+> `mysqldump` genera las tablas en orden alfabético, y las envuelve en
+> `SET FOREIGN_KEY_CHECKS=0` para poder crear tablas con llaves foráneas
+> que apuntan a otra tabla que todavía no existe (ej. `alquileres`, que
+> arranca con "a", apunta a `herramientas` y `usuarios`, que vienen
+> después en orden alfabético). **InfinityFree no respeta ese
+> `SET FOREIGN_KEY_CHECKS=0`** — es un filtro de seguridad típico de
+> hosting compartido gratuito — así que la importación tira
+> `#1005 - Error: 150 "Foreign key constraint is incorrectly formed"` al
+> llegar a `alquileres`. La solución, ya aplicada en el
+> `alquilar_esquema.sql` que te compartí: las tablas están en orden de
+> dependencia real (`usuarios` → `herramientas` → `alquileres` → `pagos`
+> → `migrations`), no alfabético, así cada `CREATE TABLE` solo referencia
+> tablas que ya existen. Si en algún momento se regenera este archivo con
+> `mysqldump`, hay que pasarle los nombres de tabla en ese orden
+> explícitamente (`mysqldump ... alquilar usuarios herramientas
+> alquileres pagos migrations`), no dejarlo en orden alfabético por
+> default.
+
 ## Paso 6 — Probar
 
 Entrá a `http://alquilar.site.je/`. Si ves el catálogo (vacío, está bien,
