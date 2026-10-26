@@ -1,9 +1,15 @@
+<?php
+// $herramienta llega solo desde Herramientas::editar(); si no, es el form de alta.
+$herramienta = $herramienta ?? null;
+$esEdicion   = $herramienta !== null;
+$urlSubmit   = $esEdicion ? site_url('mis-herramientas/editar/' . (int) $herramienta['id_herramienta']) : site_url('publicar-herramienta');
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Alquil-Ar — Publicar herramienta</title>
+<title>Alquil-Ar — <?= $esEdicion ? 'Editar herramienta' : 'Publicar herramienta' ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -90,18 +96,18 @@
 </div>
 
 <div class="wrap">
-  <h1 style="font-size:20px; margin:0 0 4px;">Publicar nueva herramienta</h1>
-  <p style="color:var(--muted); font-size:13px; margin:0 0 18px;">Completá los datos para que otros usuarios puedan encontrarla y alquilarla.</p>
+  <h1 style="font-size:20px; margin:0 0 4px;"><?= $esEdicion ? 'Editar herramienta' : 'Publicar nueva herramienta' ?></h1>
+  <p style="color:var(--muted); font-size:13px; margin:0 0 18px;"><?= $esEdicion ? 'Actualizá los datos de tu herramienta.' : 'Completá los datos para que otros usuarios puedan encontrarla y alquilarla.' ?></p>
 
   <div class="card">
 
     <!-- Banner de error (se muestra vía JS si el backend responde con error) -->
-    <div class="banner error" id="bannerError">⚠️ No pudimos publicar la herramienta. Revisá los datos e intentá de nuevo.</div>
+    <div class="banner error" id="bannerError">⚠️ No pudimos <?= $esEdicion ? 'guardar los cambios' : 'publicar la herramienta' ?>. Revisá los datos e intentá de nuevo.</div>
 
     <!-- Formulario -->
-    <form id="publicarForm">
+    <form id="publicarForm" data-url="<?= $urlSubmit ?>">
       <?= csrf_field() ?>
-      <div class="upload-box" id="uploadBox">
+      <div class="upload-box<?= $esEdicion && ! empty($herramienta['foto_url']) ? ' has-preview' : '' ?>" id="uploadBox">
         <input type="file" name="foto" id="inputFoto" accept="image/jpeg,image/png,image/webp">
         <div class="placeholder">
           <svg class="stroke" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto; display:block;">
@@ -111,14 +117,17 @@
           <div class="u2">JPG, PNG o WEBP · hasta 4 MB (opcional)</div>
         </div>
         <div class="preview-wrap" id="previewWrap">
-          <img id="previewImg" alt="Vista previa de la foto">
+          <img id="previewImg" alt="Vista previa de la foto" <?= $esEdicion && ! empty($herramienta['foto_url']) ? 'src="' . esc($herramienta['foto_url']) . '"' : '' ?>>
           <button type="button" class="quitar-foto" id="btnQuitarFoto" title="Quitar foto">✕</button>
         </div>
       </div>
+      <?php if ($esEdicion) : ?>
+        <p style="font-size:11px; color:var(--muted); margin:-14px 0 16px;">Si no elegís una foto nueva, se mantiene la actual. Tocar la ✕ no la borra todavía, solo descarta la selección.</p>
+      <?php endif ?>
 
       <div class="field-group" id="group-nombre">
         <label class="field-label">Nombre de la herramienta</label>
-        <input class="field-input" type="text" name="nombre" placeholder="Ej: Taladro percutor Bosch" required>
+        <input class="field-input" type="text" name="nombre" placeholder="Ej: Taladro percutor Bosch" value="<?= esc($herramienta['nombre'] ?? '') ?>" required>
         <div class="field-error">Ingresá un nombre.</div>
       </div>
 
@@ -138,14 +147,14 @@
         </div>
         <div class="field-group" id="group-precio_dia">
           <label class="field-label">Precio por día</label>
-          <input class="field-input" type="number" name="precio_dia" placeholder="$ 1.200" min="1" required>
+          <input class="field-input" type="number" name="precio_dia" placeholder="$ 1.200" min="1" value="<?= esc($herramienta['precio_dia'] ?? '') ?>" required>
           <div class="field-error">Ingresá un precio válido.</div>
         </div>
       </div>
 
       <div class="field-group" id="group-precio-hora">
         <label class="field-label">Precio por hora (opcional)</label>
-        <input class="field-input" type="number" name="precio_hora" placeholder="$ 200" min="1">
+        <input class="field-input" type="number" name="precio_hora" placeholder="$ 200" min="1" value="<?= esc($herramienta['precio_hora'] ?? '') ?>">
       </div>
 
       <div class="field-group" id="group-capacidad">
@@ -155,13 +164,13 @@
 
       <div class="field-group" id="group-descripcion">
         <label class="field-label">Descripción</label>
-        <textarea class="field-input" name="descripcion" placeholder="Contá el estado, qué incluye, condiciones de uso..." required></textarea>
+        <textarea class="field-input" name="descripcion" placeholder="Contá el estado, qué incluye, condiciones de uso..." required><?= esc($herramienta['descripcion'] ?? '') ?></textarea>
         <div class="field-error">Agregá una descripción.</div>
       </div>
 
       <button type="submit" class="btn" id="btnPublicar">
         <span class="spinner" id="spinner"></span>
-        <span id="btnText">Publicar herramienta</span>
+        <span id="btnText"><?= $esEdicion ? 'Guardar cambios' : 'Publicar herramienta' ?></span>
       </button>
     </form>
 
@@ -170,9 +179,9 @@
       <div class="check">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
       </div>
-      <h2>¡Herramienta publicada!</h2>
-      <p>Ya está visible para que otros usuarios la encuentren y la alquilen.</p>
-      <a href="/mis-herramientas" class="btn">Ver mis herramientas</a>
+      <h2><?= $esEdicion ? '¡Cambios guardados!' : '¡Herramienta publicada!' ?></h2>
+      <p><?= $esEdicion ? 'Los cambios ya están visibles en el catálogo.' : 'Ya está visible para que otros usuarios la encuentren y la alquilen.' ?></p>
+      <a href="<?= site_url('mis-herramientas') ?>" class="btn">Ver mis herramientas</a>
     </div>
 
   </div>
@@ -217,6 +226,9 @@
   const bannerError = document.getElementById('bannerError');
   const successView = document.getElementById('successView');
 
+  const textoBotonOriginal = btnText.textContent;
+  const textoCargando = <?= json_encode($esEdicion ? 'Guardando...' : 'Publicando...') ?>;
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
 
@@ -236,9 +248,9 @@
     // Estado: cargando
     btn.disabled = true;
     spinner.style.display = 'inline-block';
-    btnText.textContent = 'Publicando...';
+    btnText.textContent = textoCargando;
 
-    fetch('/publicar-herramienta', {
+    fetch(form.dataset.url, {
       method: 'POST',
       body: new FormData(form),
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -247,20 +259,20 @@
       .then(data => {
         spinner.style.display = 'none';
         btn.disabled = false;
-        btnText.textContent = 'Publicar herramienta';
+        btnText.textContent = textoBotonOriginal;
 
         if (data.ok) {
           form.style.display = 'none';
           successView.style.display = 'block';
         } else {
-          bannerError.textContent = '⚠️ ' + (data.error || 'No pudimos publicar la herramienta. Revisá los datos e intentá de nuevo.');
+          bannerError.textContent = '⚠️ ' + (data.error || bannerError.textContent);
           bannerError.style.display = 'flex';
         }
       })
       .catch(() => {
         spinner.style.display = 'none';
         btn.disabled = false;
-        btnText.textContent = 'Publicar herramienta';
+        btnText.textContent = textoBotonOriginal;
         bannerError.textContent = '⚠️ No pudimos conectar con el servidor. Intentá de nuevo.';
         bannerError.style.display = 'flex';
       });

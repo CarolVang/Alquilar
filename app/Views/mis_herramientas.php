@@ -45,8 +45,13 @@
   .tool-actions button{
     flex:1; font-size:11px; font-weight:700; border-radius:6px; padding:7px; cursor:pointer;
   }
-  .btn-edit{ background:var(--teal-900); color:#fff; border:none; }
+  .btn-edit{ background:var(--teal-900); color:#fff; border:none; text-decoration:none; display:flex; align-items:center; justify-content:center; }
   .btn-pause{ background:#fff; color:var(--muted); border:1px solid var(--line); }
+  .btn-pause:disabled{ opacity:.6; cursor:default; }
+
+  .toast-ar{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--teal-900); color:#fff; padding:11px 18px; border-radius:9px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .2s; z-index:5; max-width:90vw; text-align:center; }
+  .toast-ar.on{ opacity:1; }
+  .toast-ar.bad{ background:var(--danger); }
 
   .add-card{
     border:1.5px dashed #C8D2CC; border-radius:12px; display:flex; flex-direction:column; align-items:center;
@@ -94,7 +99,11 @@
 
   <!-- ESTADO: con herramientas publicadas -->
   <div class="view grid-view" id="view-listado">
-    <?php foreach ($herramientas as $h) : ?>
+    <?php
+    $etiquetasEstado = ['disponible' => 'Disponible', 'no_disponible' => 'Pausada', 'alquilada' => 'Alquilada'];
+    foreach ($herramientas as $h) :
+        $pausada = $h['estado'] === 'no_disponible';
+    ?>
     <div class="tool-card">
       <div class="tool-media">
         <?php if (! empty($h['foto_url'])) : ?>
@@ -106,9 +115,16 @@
       <div class="tool-body">
         <h3><?= esc($h['nombre']) ?></h3>
         <div class="tool-status<?= $h['estado'] !== 'disponible' ? ' paused' : '' ?>">
-          <?= $h['estado'] === 'disponible' ? '●' : '⏸' ?> <?= esc(ucfirst($h['estado'])) ?> · $<?= number_format((float) $h['precio_dia'], 0, ',', '.') ?>/día<?= $h['precio_hora'] !== null ? ' · $' . number_format((float) $h['precio_hora'], 0, ',', '.') . '/hora' : '' ?>
+          <?= $h['estado'] === 'disponible' ? '●' : '⏸' ?> <?= esc($etiquetasEstado[$h['estado']] ?? $h['estado']) ?> · $<?= number_format((float) $h['precio_dia'], 0, ',', '.') ?>/día<?= $h['precio_hora'] !== null ? ' · $' . number_format((float) $h['precio_hora'], 0, ',', '.') . '/hora' : '' ?>
         </div>
-        <div class="tool-actions"><button class="btn-edit">Editar</button><button class="btn-pause">Pausar</button></div>
+        <div class="tool-actions">
+          <a class="btn-edit" href="<?= site_url('mis-herramientas/editar/' . (int) $h['id_herramienta']) ?>">Editar</a>
+          <?php if ($h['estado'] !== 'alquilada') : ?>
+            <button class="btn-pause" type="button" data-id="<?= (int) $h['id_herramienta'] ?>" data-estado="<?= $pausada ? 'disponible' : 'no_disponible' ?>">
+              <?= $pausada ? 'Reactivar' : 'Pausar' ?>
+            </button>
+          <?php endif ?>
+        </div>
       </div>
     </div>
     <?php endforeach ?>
@@ -138,6 +154,7 @@
   </div>
 
 </div>
+<div class="toast-ar" id="toast"></div>
 
 <script>
   function showView(name){
@@ -145,6 +162,49 @@
     document.getElementById('view-' + name).classList.add('on');
   }
   showView('<?= empty($herramientas) ? 'vacio' : 'listado' ?>');
+
+  const CSRF_TOKEN_NAME = <?= json_encode(csrf_token()) ?>;
+  const CSRF_HASH = <?= json_encode(csrf_hash()) ?>;
+
+  let toastT = null;
+  function aviso(msg, malo){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast-ar on' + (malo ? ' bad' : '');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => { t.className = 'toast-ar'; }, 2800);
+  }
+
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.btn-pause');
+    if(!btn) return;
+
+    const estadoAnterior = btn.textContent.trim();
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    fetch('<?= site_url('mis-herramientas/cambiar-estado') ?>/' + btn.dataset.id, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+      body: new URLSearchParams({ estado: btn.dataset.estado, [CSRF_TOKEN_NAME]: CSRF_HASH }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if(data.ok){
+          aviso(btn.dataset.estado === 'disponible' ? 'Herramienta reactivada.' : 'Herramienta pausada.');
+          location.reload();
+        } else {
+          btn.disabled = false;
+          btn.textContent = estadoAnterior;
+          aviso(data.error || 'No pudimos actualizar el estado.', true);
+        }
+      })
+      .catch(() => {
+        btn.disabled = false;
+        btn.textContent = estadoAnterior;
+        aviso('Hubo un problema de conexión. Intentá de nuevo.', true);
+      });
+  });
 </script>
 
 </body>

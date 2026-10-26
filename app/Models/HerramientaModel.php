@@ -60,6 +60,36 @@ class HerramientaModel extends Model
         return $this->where('estado', 'disponible')->findAll();
     }
 
+    /**
+     * Pausa o reactiva una herramienta, solo si le pertenece al usuario.
+     */
+    public function cambiarEstado(int $idHerramienta, int $idUsuario, string $nuevoEstado): bool
+    {
+        if (! in_array($nuevoEstado, ['disponible', 'no_disponible'], true)) {
+            return false;
+        }
+
+        $filas = $this->where('id_herramienta', $idHerramienta)
+                      ->where('id_usuario', $idUsuario)
+                      ->set(['estado' => $nuevoEstado])
+                      ->update();
+
+        return $filas && $this->db->affectedRows() > 0;
+    }
+
+    /**
+     * Actualiza una herramienta, solo si le pertenece al usuario: el WHERE
+     * adicional es la proteccion real (no algo que el Controller podria
+     * olvidarse de chequear). update($id, $data) sigue corriendo la
+     * validacion normal del modelo sobre los campos que vengan en $data.
+     */
+    public function actualizarPropia(int $idHerramienta, int $idUsuario, array $data): bool
+    {
+        $filas = $this->where('id_usuario', $idUsuario)->update($idHerramienta, $data);
+
+        return (bool) $filas;
+    }
+
     public function getCatalogoOrdenado()
     {
         return $this->select('herramientas.*, usuarios.nombre AS propietario_nombre')
