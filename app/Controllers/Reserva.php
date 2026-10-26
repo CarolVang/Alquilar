@@ -10,6 +10,10 @@ class Reserva extends BaseController
 {
     public function confirmacion()
     {
+        if (! $this->session->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
         $idHerramienta = (int) $this->request->getGet('id_herramienta');
         $unidadPrecio  = $this->request->getGet('unidad_precio') === 'hora' ? 'hora' : 'dia';
         $fechaInicio   = $this->request->getGet('fecha_inicio');

@@ -25,11 +25,8 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
   h1,h2,h3{ font-family:'Space Grotesk',sans-serif; }
 
-  .nav{ display:flex; align-items:center; gap:20px; padding:16px 40px; background:var(--teal-900); color:#fff; }
-  .logo{ font-size:20px; font-weight:700; }
-  .logo span{ color:var(--amber-500); }
-  .back{ color:#CFE0DB; text-decoration:none; font-size:13px; flex:1; }
-  .avatar-chip{ width:32px; height:32px; border-radius:50%; background:var(--amber-500); color:var(--teal-900); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.5px; }
+  .back-row{ padding:12px 40px 0; }
+  .back{ color:var(--teal-600); text-decoration:none; font-size:13px; font-weight:600; }
 
   .detail-wrap{ display:grid; grid-template-columns:1.15fr 0.85fr; gap:32px; max-width:1180px; margin:0 auto; padding:30px 24px 60px; }
 
@@ -109,9 +106,9 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
 </head>
 <body>
 
-<div class="nav">
-  <div class="logo">Alquil<span>-Ar</span></div>
-  <a href="/catalogo" class="back">← Volver al catálogo</a>
+<?= view('partials/nav', ['activo' => 'catalogo']) ?>
+<div class="back-row">
+  <a href="<?= site_url('/') ?>" class="back">← Volver al catálogo</a>
 </div>
 
 <div class="detail-wrap">

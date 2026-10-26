@@ -1,44 +1,46 @@
 <?php
 /**
- * Nav compartida (base: feature/frontend-luana), adaptada a las rutas reales
- * del proyecto y a la sesion real (isLoggedIn / rol / nombre) en vez de los
- * datos simulados por localStorage que tenia la version original.
+ * Nav compartida. Navegar el catalogo es publico; "Publicar" y "Mis reservas"
+ * quedan siempre visibles pero sus controllers redirigen a /login si no hay
+ * sesion (no hay nada que ocultar, la accion es la que esta protegida).
+ * No se filtra por rol: ni Herramientas::crear() ni Reserva::confirmar()
+ * distinguen cliente/retador, asi que mostrar u ocultar links segun rol
+ * era una distincion que la app nunca aplicaba de verdad.
  */
 $activo   = $activo ?? '';
 $logueado = (bool) session('isLoggedIn');
-$rol      = (string) session('rol');
 
-$links = [['catalogo', 'Catálogo']];
-if ($logueado && $rol !== 'retador') {
-    $links[] = ['mis-reservas', 'Mis reservas'];
-}
-if ($logueado && $rol !== 'cliente') {
-    $links[] = ['mis-herramientas', 'Mis herramientas'];
-    $links[] = ['mis-alquileres', 'Mis alquileres'];
+function navIniciales(string $nombre): string
+{
+    return mb_strtoupper(mb_substr(trim($nombre), 0, 2));
 }
 ?>
 <style>
-  .ar-nav{ display:flex; align-items:center; gap:18px; padding:14px 28px; background:#0B3D3C; color:#fff; font-family:'Inter',sans-serif; }
-  .ar-nav .logo{ font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; margin-right:10px; }
+  .ar-nav{ display:flex; align-items:center; gap:22px; padding:0 28px; height:60px; background:#0B3D3C; color:#fff; font-family:'Inter',sans-serif; }
+  .ar-nav .logo{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700; text-decoration:none; color:#fff; }
   .ar-nav .logo span{ color:#F2A93B; }
-  .ar-nav a{ color:#CFE0DB; text-decoration:none; font-size:13.5px; font-weight:600; }
-  .ar-nav a.on{ color:#fff; }
-  .ar-nav .spacer{ flex:1; }
-  .ar-nav .user{ font-size:13px; color:#CFE0DB; margin-right:6px; }
-  .ar-nav .btn-amber{ background:#F2A93B; color:#0B3D3C; border:none; padding:8px 14px; border-radius:7px; font-size:12.5px; font-weight:700; text-decoration:none; }
-  .ar-nav .btn-ghost{ color:#fff; border:1px solid rgba(255,255,255,.35); padding:7px 13px; border-radius:7px; font-size:12.5px; font-weight:700; }
+  .ar-nav .links{ display:flex; gap:20px; flex:1; }
+  .ar-nav a.link{ color:#CFE0DB; text-decoration:none; font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  .ar-nav a.link.on{ color:#fff; }
+  .ar-nav a.link:hover{ color:#fff; }
+  .ar-nav .perfil-chip{ display:flex; align-items:center; gap:8px; color:#fff; text-decoration:none; font-size:13px; font-weight:600; }
+  .ar-nav .avatar{ width:30px; height:30px; border-radius:50%; background:#F2A93B; color:#0B3D3C; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0; }
+  .ar-nav .avatar.anon{ background:rgba(255,255,255,.15); color:#fff; }
 </style>
 <nav class="ar-nav">
   <a href="<?= site_url('/') ?>" class="logo">Alquil<span>-Ar</span></a>
-  <?php foreach ($links as [$slug, $texto]) : ?>
-    <a href="<?= site_url($slug) ?>" class="<?= $activo === $slug ? 'on' : '' ?>"><?= esc($texto) ?></a>
-  <?php endforeach ?>
-  <div class="spacer"></div>
-  <?php if ($logueado) : ?>
-    <span class="user">Hola, <?= esc(session('nombre')) ?></span>
-    <a href="<?= site_url('logout') ?>" class="btn-ghost">Salir</a>
-  <?php else : ?>
-    <a href="<?= site_url('login') ?>" class="btn-ghost">Iniciar sesión</a>
-    <a href="<?= site_url('registro') ?>" class="btn-amber">Crear cuenta</a>
-  <?php endif ?>
+  <div class="links">
+    <a href="<?= site_url('/') ?>" class="link<?= $activo === 'catalogo' ? ' on' : '' ?>">Catálogo</a>
+    <a href="<?= site_url('publicar-herramienta') ?>" class="link<?= $activo === 'publicar' ? ' on' : '' ?>">Publicar</a>
+    <a href="<?= site_url('mis-reservas') ?>" class="link<?= $activo === 'mis-reservas' ? ' on' : '' ?>">Mis reservas</a>
+  </div>
+  <a href="<?= $logueado ? site_url('perfil') : site_url('login') ?>" class="perfil-chip">
+    <?php if ($logueado) : ?>
+      <span class="avatar"><?= esc(navIniciales((string) session('nombre'))) ?></span>
+      <?= esc(session('nombre')) ?>
+    <?php else : ?>
+      <span class="avatar anon">?</span>
+      Ingresar
+    <?php endif ?>
+  </a>
 </nav>

@@ -3,7 +3,7 @@
 use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
-$routes->get('/', 'Home::index');
+$routes->get('/', 'Catalogo::index');
 
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attemptLogin');
@@ -17,7 +17,9 @@ $routes->get('publicar-herramienta', 'Herramientas::publicar');
 $routes->post('publicar-herramienta', 'Herramientas::crear');
 
 $routes->get('mis-herramientas', 'Herramientas::mis');
-$routes->get('catalogo', 'Catalogo::index');
+$routes->get('catalogo', 'Catalogo::index'); // alias historico de "/", se mantiene por los redirect() que ya usan esta ruta
+
+$routes->get('perfil', 'Perfil::index');
 
 $routes->get('detalle/(:num)', 'Herramientas::detalle/$1');
 

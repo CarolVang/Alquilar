@@ -79,6 +79,36 @@ class AlquilerModel extends Model
     }
 
     /**
+     * Para el catalogo: de que herramientas (entre las dadas) hay una reserva
+     * confirmada que las ocupa justo ahora, y hasta cuando. Una sola consulta
+     * para toda la grilla en vez de una por tarjeta.
+     *
+     * @param list<int> $idsHerramienta
+     * @return array<int, string> id_herramienta => fecha_fin de la reserva que la ocupa ahora
+     */
+    public function getOcupacionActual(array $idsHerramienta): array
+    {
+        if ($idsHerramienta === []) {
+            return [];
+        }
+
+        $filas = $this->select('id_herramienta, MAX(fecha_fin) AS libre_desde')
+                       ->whereIn('id_herramienta', $idsHerramienta)
+                       ->where('estado', 'confirmada')
+                       ->where('fecha_inicio <=', date('Y-m-d H:i:s'))
+                       ->where('fecha_fin >=', date('Y-m-d H:i:s'))
+                       ->groupBy('id_herramienta')
+                       ->findAll();
+
+        $mapa = [];
+        foreach ($filas as $fila) {
+            $mapa[(int) $fila['id_herramienta']] = $fila['libre_desde'];
+        }
+
+        return $mapa;
+    }
+
+    /**
      * Reservas hechas POR un cliente (lo que alquiló de otros).
      */
     public function getReservasCliente(int $idUsuario): array

@@ -29,10 +29,8 @@ $horaDevolucion = (new DateTime($fecha_fin))->format('H:i');
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
   h1,h2,h3{ font-family:'Space Grotesk',sans-serif; }
 
-  .nav{ display:flex; align-items:center; gap:14px; padding:16px 40px; background:var(--teal-900); color:#fff; }
-  .logo{ font-size:18px; font-weight:700; }
-  .logo span{ color:var(--amber-500); }
-  .back{ color:#CFE0DB; text-decoration:none; font-size:13px; flex:1; }
+  .back-row{ padding:14px 40px 0; }
+  .back{ color:var(--teal-600); text-decoration:none; font-size:13px; font-weight:600; }
 
   .wrap{ max-width:560px; margin:0 auto; padding:34px 20px 60px; }
 
@@ -92,9 +90,9 @@ $horaDevolucion = (new DateTime($fecha_fin))->format('H:i');
 </head>
 <body>
 
-<div class="nav">
-  <div class="logo">Alquil<span>-Ar</span></div>
-  <a href="/detalle/<?= (int) $herramienta['id_herramienta'] ?>" class="back">← Volver / modificar</a>
+<?= view('partials/nav', ['activo' => 'catalogo']) ?>
+<div class="back-row">
+  <a href="<?= site_url('detalle/' . (int) $herramienta['id_herramienta']) ?>" class="back">← Volver / modificar</a>
 </div>
 
 <div class="wrap">

@@ -60,19 +60,14 @@ class HerramientaModel extends Model
 
     public function getCatalogoOrdenado()
     {
-        return $this->select('herramientas.*, alquileres.fecha_fin')
-                    ->join(
-                        'alquileres',
-                        'alquileres.id_herramienta = herramientas.id_herramienta AND alquileres.estado = "confirmada"',
-                        'left'
-                    )
+        return $this->select('herramientas.*, usuarios.nombre AS propietario_nombre')
+                    ->join('usuarios', 'usuarios.id_usuario = herramientas.id_usuario')
                     ->orderBy(
                         "FIELD(herramientas.estado, 'disponible', 'no_disponible', 'alquilada')",
                         '',
                         false
                     )
                     ->orderBy('herramientas.nombre', 'ASC')
-                    ->groupBy('herramientas.id_herramienta')
                     ->findAll();
     }
 }

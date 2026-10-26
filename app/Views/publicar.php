@@ -16,10 +16,8 @@
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
   h1,h2{ font-family:'Space Grotesk',sans-serif; }
 
-  .topbar{ display:flex; align-items:center; gap:14px; padding:16px 24px; background:var(--teal-900); color:#fff; }
-  .logo{ font-size:18px; font-weight:700; }
-  .logo span{ color:var(--amber-500); }
-  .back{ color:#CFE0DB; text-decoration:none; font-size:13px; }
+  .back-row{ padding:16px 24px 0; }
+  .back{ color:var(--teal-600); text-decoration:none; font-size:13px; font-weight:600; }
 
   .wrap{ max-width:620px; margin:0 auto; padding:32px 20px 60px; }
   .card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:26px 28px; }
@@ -78,9 +76,9 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="logo">Alquil<span>-Ar</span></div>
-  <a href="/panel" class="back">← Volver al panel</a>
+<?= view('partials/nav', ['activo' => 'publicar']) ?>
+<div class="back-row">
+  <a href="<?= site_url('perfil') ?>" class="back">← Volver a mi perfil</a>
 </div>
 
 <div class="wrap">
