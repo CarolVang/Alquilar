@@ -80,7 +80,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
 .mini.line{background:#fff;color:var(--danger);border:1px solid var(--line)}
 .toast-ar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--teal-900);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:5;max-width:90vw;text-align:center}
 .toast-ar.on{opacity:1}.toast-ar.bad{background:var(--danger)}
-@media (max-width:640px){.wrap{padding:20px 14px 48px}.row{flex-wrap:wrap}.row .side{flex-direction:row;align-items:center;justify-content:space-between;width:100%;text-align:left}}
+@media (max-width:640px){.wrap{padding:20px 14px 48px}.row{flex-wrap:wrap}.row .side{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;width:100%;text-align:left}.row-actions{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}}
 </style>
 </head>
 <body>
@@ -138,7 +138,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
             <div class="side">
               <span class="pill <?= $color ?>"><?= esc($texto) ?></span>
               <div class="total">$<?= number_format((float) $r['precio_total'], 0, ',', '.') ?></div>
-              <div>
+              <div class="row-actions">
                 <a class="mini dark" href="<?= site_url('detalle/' . (int) $r['id_herramienta']) ?>">Ver herramienta</a>
                 <a class="mini dark" href="<?= site_url('pago/' . (int) $r['id_alquiler']) ?>">Comprobante</a>
                 <?php if ($r['estado'] === 'confirmada') : ?>

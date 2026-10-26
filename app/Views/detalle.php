@@ -26,6 +26,9 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   h1,h2,h3{ font-family:'Space Grotesk',sans-serif; }
 
   .back-row{ padding:12px 40px 0; }
+  @media (max-width: 640px){
+    .back-row{ padding:12px 16px 0; }
+  }
   .back{ color:var(--teal-600); text-decoration:none; font-size:13px; font-weight:600; }
 
   .detail-wrap{ display:grid; grid-template-columns:1.15fr 0.85fr; gap:32px; max-width:1180px; margin:0 auto; padding:30px 24px 60px; }
@@ -102,6 +105,10 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   @media (max-width: 860px){
     .detail-wrap{ grid-template-columns:1fr; }
     .booking-card{ position:static; }
+  }
+  @media (max-width: 640px){
+    .detail-wrap{ padding:20px 16px 48px; gap:24px; }
+    .gallery-main{ height:200px; }
   }
 </style>
 </head>

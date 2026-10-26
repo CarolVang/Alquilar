@@ -86,6 +86,12 @@ $urlSubmit   = $esEdicion ? site_url('mis-herramientas/editar/' . (int) $herrami
   .success-view h2{ font-size:18px; margin:0 0 6px; }
   .success-view p{ color:var(--muted); font-size:13px; margin:0 0 20px; }
   .success-view a.btn{ display:inline-flex; text-decoration:none; width:auto; padding:12px 24px; }
+
+  @media (max-width: 560px){
+    .wrap{ padding:20px 14px 48px; }
+    .card{ padding:20px 18px; }
+    .form-row{ flex-direction:column; gap:0; }
+  }
 </style>
 </head>
 <body>

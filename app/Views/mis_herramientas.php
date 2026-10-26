@@ -16,9 +16,7 @@
   body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--teal-50); }
   h1,h2,h3{ font-family:'Space Grotesk',sans-serif; }
 
-  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:16px 24px; background:var(--teal-900); color:#fff; }
-  .logo{ font-size:18px; font-weight:700; }
-  .logo span{ color:var(--amber-500); }
+  .topbar{ display:flex; align-items:center; justify-content:flex-end; padding:14px 24px; background:#fff; border-bottom:1px solid var(--line); }
   .btn-amber{ background:var(--amber-500); color:var(--teal-900); border:none; padding:9px 16px; border-radius:7px; font-size:12.5px; font-weight:700; cursor:pointer; text-decoration:none; }
 
   .wrap{ max-width:920px; margin:0 auto; padding:28px 20px 60px; }
@@ -33,7 +31,6 @@
     border:1px solid #d9a441; background:#fff; border-radius:6px; padding:5px 10px; font-size:11px; cursor:pointer;
   }
 
-  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
   .tool-card{ background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
   .tool-media{ height:100px; background:var(--teal-100); display:flex; align-items:center; justify-content:center; color:var(--teal-700); }
   .tool-media svg{ width:34px; height:34px; }
@@ -83,14 +80,22 @@
 
   .view{ display:none; }
   .view.on{ display:block; }
-  .view.on.grid-view{ display:grid; }
+  .view.on.grid-view{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+
+  @media (max-width: 960px){
+    .view.on.grid-view{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width: 640px){
+    .view.on.grid-view{ grid-template-columns:1fr; }
+    .topbar{ padding:14px 16px; }
+    .wrap{ padding:20px 16px 48px; }
+  }
 </style>
 </head>
 <body>
 
 <?= view('partials/nav', ['activo' => 'mis-herramientas']) ?>
 <div class="topbar">
-  <div class="logo">Alquil<span>-Ar</span></div>
   <a href="/publicar-herramienta" class="btn-amber">+ Publicar nueva</a>
 </div>
 

@@ -26,6 +26,20 @@ function navIniciales(string $nombre): string
   .ar-nav .perfil-chip{ display:flex; align-items:center; gap:8px; color:#fff; text-decoration:none; font-size:13px; font-weight:600; }
   .ar-nav .avatar{ width:30px; height:30px; border-radius:50%; background:#F2A93B; color:#0B3D3C; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0; }
   .ar-nav .avatar.anon{ background:rgba(255,255,255,.15); color:#fff; }
+
+  @media (max-width: 640px){
+    .ar-nav{ gap:10px; padding:0 14px; }
+    .ar-nav .logo{ font-size:16px; }
+    .ar-nav .links{ gap:12px; }
+    .ar-nav a.link{ font-size:12px; }
+    /* El texto ("Hola, Nombre" / "Ingresar") es un nodo de texto suelto en el
+       <a>, no tiene su propio elemento: achicar el font-size del padre a 0 lo
+       vuelve invisible sin tocar el avatar (que define su propio font-size). */
+    .ar-nav .perfil-chip{ font-size:0; gap:0; }
+  }
+  @media (max-width: 420px){
+    .ar-nav .links a.link:first-child{ display:none; }
+  }
 </style>
 <nav class="ar-nav">
   <a href="<?= site_url('/') ?>" class="logo">Alquil<span>-Ar</span></a>

@@ -30,6 +30,10 @@ $horaDevolucion = (new DateTime($fecha_fin))->format('H:i');
   h1,h2,h3{ font-family:'Space Grotesk',sans-serif; }
 
   .back-row{ padding:14px 40px 0; }
+  @media (max-width: 640px){
+    .back-row{ padding:14px 16px 0; }
+    .wrap{ padding:24px 16px 48px; }
+  }
   .back{ color:var(--teal-600); text-decoration:none; font-size:13px; font-weight:600; }
 
   .wrap{ max-width:560px; margin:0 auto; padding:34px 20px 60px; }

@@ -39,7 +39,10 @@
   }
   .dev-toolbar button{ border:1px solid #d9a441; background:#fff; border-radius:6px; padding:5px 10px; font-size:11px; cursor:pointer; }
 
-  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  /* .grid vive en #resultsGrid con display:contents (sus hijos pasan a ser
+     items del grid del padre, #view-resultados): por eso las columnas van
+     declaradas en .view.grid-view y no acá, donde no tendrian efecto. */
+  .grid{ display:contents; }
   .p-card{ background:var(--card); border-radius:14px; overflow:hidden; border:1px solid var(--line); text-decoration:none; color:inherit; display:flex; flex-direction:column; transition:box-shadow .15s; }
   .p-card:hover{ box-shadow:0 8px 24px rgba(0,0,0,.08); }
   .p-media{ aspect-ratio:4/3; background:var(--teal-100); display:flex; align-items:center; justify-content:center; color:var(--teal-700); position:relative; }
@@ -79,7 +82,20 @@
 
   .view{ display:none; }
   .view.on{ display:block; }
-  .view.on.grid-view{ display:grid; }
+  .view.on.grid-view{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+
+  @media (max-width: 960px){
+    .view.on.grid-view{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width: 640px){
+    .view.on.grid-view{ grid-template-columns:1fr; }
+    .search-panel{ padding:14px 16px 20px; }
+    .filters{ padding:12px 16px; overflow-x:auto; flex-wrap:nowrap; }
+    .filters .chip{ white-space:nowrap; flex-shrink:0; }
+    .filters select{ flex-shrink:0; }
+    .filters .results-count{ display:none; }
+    .wrap{ padding:20px 16px 48px; }
+  }
 </style>
 </head>
 <body>
