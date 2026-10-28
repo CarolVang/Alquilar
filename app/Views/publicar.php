@@ -162,7 +162,7 @@ $urlSubmit   = $esEdicion ? site_url('mis-herramientas/editar/' . (int) $herrami
 
       <div class="field-group" id="group-capacidad">
         <label class="field-label">Capacidad / detalle técnico</label>
-        <input class="field-input" type="text" name="capacidad" placeholder="Ej: hasta 13mm, 150kg por nivel, etc.">
+        <input class="field-input" type="text" name="capacidad" placeholder="Ej: hasta 13mm, 150kg por nivel, etc." value="<?= esc($herramienta['capacidad'] ?? '') ?>">
       </div>
 
       <div class="field-group" id="group-descripcion">

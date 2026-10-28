@@ -12,7 +12,7 @@ class HerramientaModel extends Model
     protected $returnType        = 'array';
     protected $useSoftDeletes    = false;
     protected $protectFields     = true;
-    protected $allowedFields     = ['id_usuario', 'nombre', 'categoria', 'descripcion', 'precio_dia', 'precio_hora', 'estado', 'foto_url'];
+    protected $allowedFields     = ['id_usuario', 'nombre', 'categoria', 'descripcion', 'precio_dia', 'precio_hora', 'capacidad', 'estado', 'foto_url'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -35,6 +35,7 @@ class HerramientaModel extends Model
         'descripcion' => 'permit_empty|max_length[500]',
         'precio_dia'  => 'required|decimal|greater_than[0]',
         'precio_hora' => 'permit_empty|decimal|greater_than[0]',
+        'capacidad'   => 'permit_empty|max_length[100]',
         'estado'      => 'permit_empty|in_list[disponible,alquilada,no_disponible]',
         // La URL la genera el servidor al mover el archivo subido (Herramientas::crear()),
         // nunca viene como texto libre del usuario, por eso no exige valid_url_strict.

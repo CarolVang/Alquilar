@@ -41,6 +41,7 @@ class Herramientas extends BaseController
             'descripcion' => $this->request->getPost('descripcion'),
             'precio_dia'  => $this->request->getPost('precio_dia'),
             'precio_hora' => $this->request->getPost('precio_hora') ?: null,
+            'capacidad'   => $this->request->getPost('capacidad') ?: null,
             'estado'      => 'disponible',
             'foto_url'    => $resultadoFoto['url'],
         ];
@@ -111,6 +112,7 @@ class Herramientas extends BaseController
             'descripcion' => $this->request->getPost('descripcion'),
             'precio_dia'  => $this->request->getPost('precio_dia'),
             'precio_hora' => $this->request->getPost('precio_hora') ?: null,
+            'capacidad'   => $this->request->getPost('capacidad') ?: null,
         ];
 
         // Solo se toca foto_url si de verdad se subio una foto nueva;
