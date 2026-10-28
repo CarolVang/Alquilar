@@ -133,6 +133,26 @@ InfinityFree, buscá el selector de versión/configuración de PHP y confirmá
 que ambas estén activas (si no aparecen activables ahí, avisame el mensaje
 de error exacto que te tire el sitio y lo vemos).
 
+## Cambios de esquema pendientes de aplicar en el sitio en vivo
+
+El deploy real a InfinityFree (26 oct 2026) se hizo con el esquema de ese
+momento. Si despues de esa fecha se agrega una migracion nueva (una columna,
+una tabla), **no alcanza con pushear el codigo a GitHub**: como ahi no hay
+consola, `php spark migrate` nunca corre solo. Hay que aplicar el cambio a
+mano por phpMyAdmin, en la pestaña **SQL** de la base, o el sitio en vivo
+va a tirar un error SQL ("Unknown column") en cuanto el codigo nuevo
+intente leer o escribir esa columna.
+
+- **Columna `capacidad` en `herramientas`** (agregada el 28 oct 2026, despues
+  del deploy real — mismo tipo de bug que "categoria": el campo existia en el
+  formulario pero nunca se guardaba). Mientras esto no se corra en la base de
+  InfinityFree, publicar o editar una herramienta ahi va a fallar. Correr una
+  sola vez en phpMyAdmin → pestaña SQL:
+
+  ```sql
+  ALTER TABLE herramientas ADD COLUMN capacidad VARCHAR(100) NULL AFTER precio_hora;
+  ```
+
 ## Problemas conocidos / cosas para probar en vivo
 
 - **El `.htaccess` de la raíz, confirmado funcionando** en el deploy real del
