@@ -170,6 +170,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
                 Cliente: <b><?= esc($a['cliente_nombre']) ?></b> · N° <b>#<?= (int) $a['id_alquiler'] ?></b><br>
                 <?= $activo ? 'Tel. ' . esc($a['cliente_telefono'] ?? '—') : '<span class="priv">Contacto disponible solo mientras el alquiler está activo</span>' ?><br>
                 <?= esc(fechaCortaEs2($a['fecha_inicio'], $diasEs, $mesesEs)) ?> al <?= esc(fechaCortaEs2($a['fecha_fin'], $diasEs, $mesesEs)) ?>
+                · por <?= $a['unidad_precio'] === 'hora' ? 'hora' : 'día' ?>
               </div>
             </div>
             <div class="side">

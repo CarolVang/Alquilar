@@ -133,6 +133,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
               <div class="meta">
                 Retador: <b><?= esc($r['propietario_nombre']) ?></b> · N° <b>#<?= (int) $r['id_alquiler'] ?></b><br>
                 <?= esc(fechaCortaEs($r['fecha_inicio'], $diasEs, $mesesEs)) ?> al <?= esc(fechaCortaEs($r['fecha_fin'], $diasEs, $mesesEs)) ?>
+                · por <?= $r['unidad_precio'] === 'hora' ? 'hora' : 'día' ?>
               </div>
             </div>
             <div class="side">
