@@ -131,7 +131,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
             <div class="main">
               <h3><?= esc($r['herramienta_nombre']) ?></h3>
               <div class="meta">
-                Retador: <b><?= esc($r['propietario_nombre']) ?></b> · N° <b>#<?= (int) $r['id_alquiler'] ?></b><br>
+                Retador: <b><?= esc($r['propietario_nombre']) ?></b><?php if (($r['propietario_rol'] ?? '') === 'comerciante') : ?> <span title="Empresa" style="display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;background:var(--teal-600);color:#fff;border-radius:50%;font-size:8.5px;">✓</span><?php endif ?> · N° <b>#<?= (int) $r['id_alquiler'] ?></b><br>
                 <?= esc(fechaCortaEs($r['fecha_inicio'], $diasEs, $mesesEs)) ?> al <?= esc(fechaCortaEs($r['fecha_fin'], $diasEs, $mesesEs)) ?>
                 · por <?= $r['unidad_precio'] === 'hora' ? 'hora' : 'día' ?>
               </div>

@@ -30,8 +30,16 @@
   <div class="head-card">
     <div class="avatar"><?= esc(mb_strtoupper(mb_substr(trim((string) $usuario['nombre']), 0, 2))) ?></div>
     <div>
-      <h1><?= esc($usuario['nombre']) ?></h1>
+      <h1>
+        <?= esc($usuario['nombre']) ?>
+        <?php if ($usuario['rol'] === 'comerciante') : ?>
+          <span title="Empresa" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:var(--teal-600);color:#fff;border-radius:50%;font-size:10px;vertical-align:middle;">✓</span>
+        <?php endif ?>
+      </h1>
       <p><?= esc($usuario['email']) ?></p>
+      <?php if ($usuario['rol'] === 'comerciante' && ! empty($usuario['razon_social'])) : ?>
+        <p><?= esc($usuario['razon_social']) ?></p>
+      <?php endif ?>
     </div>
   </div>
 

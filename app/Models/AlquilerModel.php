@@ -113,7 +113,7 @@ class AlquilerModel extends Model
      */
     public function getReservasCliente(int $idUsuario): array
     {
-        return $this->select('alquileres.*, herramientas.nombre AS herramienta_nombre, herramientas.foto_url, usuarios.nombre AS propietario_nombre')
+        return $this->select('alquileres.*, herramientas.nombre AS herramienta_nombre, herramientas.foto_url, usuarios.nombre AS propietario_nombre, usuarios.rol AS propietario_rol')
                     ->join('herramientas', 'herramientas.id_herramienta = alquileres.id_herramienta')
                     ->join('usuarios', 'usuarios.id_usuario = herramientas.id_usuario')
                     ->where('alquileres.id_usuario', $idUsuario)
@@ -126,7 +126,7 @@ class AlquilerModel extends Model
      */
     public function getAlquileresPropietario(int $idUsuario): array
     {
-        return $this->select('alquileres.*, herramientas.nombre AS herramienta_nombre, herramientas.foto_url, usuarios.nombre AS cliente_nombre, usuarios.telefono AS cliente_telefono')
+        return $this->select('alquileres.*, herramientas.nombre AS herramienta_nombre, herramientas.foto_url, usuarios.nombre AS cliente_nombre, usuarios.telefono AS cliente_telefono, usuarios.rol AS cliente_rol')
                     ->join('herramientas', 'herramientas.id_herramienta = alquileres.id_herramienta')
                     ->join('usuarios', 'usuarios.id_usuario = alquileres.id_usuario')
                     ->where('herramientas.id_usuario', $idUsuario)

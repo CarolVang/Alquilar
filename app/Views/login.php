@@ -89,11 +89,6 @@
     <h1 style="font-size:22px; margin:0 0 4px;">Bienvenido/a de vuelta</h1>
     <p style="color:var(--muted); font-size:13px; margin:0 0 20px;">Ingresá a tu cuenta para continuar</p>
 
-    <div class="role-toggle">
-      <div class="on" id="tab-cliente" onclick="setRole('cliente')">Soy Cliente</div>
-      <div id="tab-retador" onclick="setRole('retador')">Soy Retador</div>
-    </div>
-
     <?php if (session()->getFlashdata('mensaje')) : ?>
       <div style="background:var(--teal-100); color:var(--teal-700); border:1px solid var(--teal-600); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:14px;">
         <?= esc(session()->getFlashdata('mensaje')) ?>
@@ -108,7 +103,6 @@
 
     <form id="loginForm" method="post" action="/login">
       <?= csrf_field() ?>
-      <input type="hidden" name="rol" id="rolInput" value="cliente">
 
       <label class="field-label">Email</label>
       <div class="field-group" id="group-email">
@@ -138,12 +132,6 @@
 </div>
 
 <script>
-  function setRole(role){
-    document.getElementById('tab-cliente').classList.toggle('on', role === 'cliente');
-    document.getElementById('tab-retador').classList.toggle('on', role === 'retador');
-    document.getElementById('rolInput').value = role;
-  }
-
   // Validación visual básica (front-end). La validación real va en el Controller/Model.
   document.getElementById('loginForm').addEventListener('submit', function(e){
     let valid = true;

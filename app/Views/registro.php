@@ -86,8 +86,8 @@
     <p style="color:var(--muted); font-size:13px; margin:0 0 18px;">Elegí cómo vas a usar Alquil-Ar</p>
 
     <div class="role-toggle">
-      <div class="on" id="tab-cliente" onclick="setRole('cliente')">Soy Cliente</div>
-      <div id="tab-retador" onclick="setRole('retador')">Soy Retador</div>
+      <div class="on" id="tab-particular" onclick="setRole('particular')">Particular</div>
+      <div id="tab-comerciante" onclick="setRole('comerciante')">Soy una empresa</div>
     </div>
 
     <?php if (session()->getFlashdata('error')) : ?>
@@ -98,7 +98,7 @@
 
     <form id="regForm" method="post" action="/registro">
       <?= csrf_field() ?>
-      <input type="hidden" name="rol" id="rolInput" value="<?= esc(old('rol', 'cliente')) ?>">
+      <input type="hidden" name="rol" id="rolInput" value="<?= esc(old('rol', 'particular')) ?>">
 
       <div class="field-group" id="group-nombre">
         <label class="field-label">Nombre completo</label>
@@ -122,6 +122,19 @@
           <label class="field-label">DNI</label>
           <input class="field-input" type="text" name="dni" value="<?= esc(old('dni')) ?>" placeholder="00.000.000" required>
           <div class="field-error">Ingresá tu DNI.</div>
+        </div>
+      </div>
+
+      <div class="form-row" id="group-empresa" style="display:none;">
+        <div class="field-group" id="group-razon_social">
+          <label class="field-label">Razón social</label>
+          <input class="field-input" type="text" name="razon_social" value="<?= esc(old('razon_social')) ?>" placeholder="Ej: Herramientas del Sur S.R.L.">
+          <div class="field-error">Ingresá la razón social de la empresa.</div>
+        </div>
+        <div class="field-group" id="group-cuit">
+          <label class="field-label">CUIT</label>
+          <input class="field-input" type="text" name="cuit" value="<?= esc(old('cuit')) ?>" placeholder="20-12345678-9">
+          <div class="field-error">Ingresá un CUIT válido (11 números).</div>
         </div>
       </div>
 
@@ -152,16 +165,24 @@
 
 <script>
   function setRole(role){
-    document.getElementById('tab-cliente').classList.toggle('on', role === 'cliente');
-    document.getElementById('tab-retador').classList.toggle('on', role === 'retador');
+    document.getElementById('tab-particular').classList.toggle('on', role === 'particular');
+    document.getElementById('tab-comerciante').classList.toggle('on', role === 'comerciante');
     document.getElementById('rolInput').value = role;
+    const grupoEmpresa = document.getElementById('group-empresa');
+    grupoEmpresa.style.display = role === 'comerciante' ? 'flex' : 'none';
+    grupoEmpresa.querySelectorAll('input').forEach(i => i.required = role === 'comerciante');
   }
+  setRole(document.getElementById('rolInput').value);
 
   // Validación visual básica (front-end). La validación real va en el Controller/Model.
   document.getElementById('regForm').addEventListener('submit', function(e){
     let valid = true;
     const f = this;
-    ['nombre','email','dni','password'].forEach(name => {
+    const campos = ['nombre','email','dni','password'];
+    if (document.getElementById('rolInput').value === 'comerciante') {
+      campos.push('razon_social', 'cuit');
+    }
+    campos.forEach(name => {
       const group = document.getElementById('group-' + name);
       group.classList.remove('has-error');
       if(!f[name].value.trim()){

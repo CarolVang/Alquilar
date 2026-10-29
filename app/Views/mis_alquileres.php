@@ -167,7 +167,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
             <div class="main">
               <h3><?= esc($a['herramienta_nombre']) ?></h3>
               <div class="meta">
-                Cliente: <b><?= esc($a['cliente_nombre']) ?></b> · N° <b>#<?= (int) $a['id_alquiler'] ?></b><br>
+                Cliente: <b><?= esc($a['cliente_nombre']) ?></b><?php if (($a['cliente_rol'] ?? '') === 'comerciante') : ?> <span title="Empresa" style="display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;background:var(--teal-600);color:#fff;border-radius:50%;font-size:8.5px;">✓</span><?php endif ?> · N° <b>#<?= (int) $a['id_alquiler'] ?></b><br>
                 <?= $activo ? 'Tel. ' . esc($a['cliente_telefono'] ?? '—') : '<span class="priv">Contacto disponible solo mientras el alquiler está activo</span>' ?><br>
                 <?= esc(fechaCortaEs2($a['fecha_inicio'], $diasEs, $mesesEs)) ?> al <?= esc(fechaCortaEs2($a['fecha_fin'], $diasEs, $mesesEs)) ?>
                 · por <?= $a['unidad_precio'] === 'hora' ? 'hora' : 'día' ?>

@@ -137,6 +137,9 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
     <div class="owner-row">
       <div class="owner-avatar"><?= esc(strtoupper(substr($propietario['nombre'] ?? '?', 0, 2))) ?></div>
       Publicado por <b style="color:var(--ink)"><?= esc($propietario['nombre'] ?? 'Usuario') ?></b>
+      <?php if (($propietario['rol'] ?? '') === 'comerciante') : ?>
+        <span title="Empresa" style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:var(--teal-600);color:#fff;border-radius:50%;font-size:9px;margin-left:3px;">✓</span>
+      <?php endif ?>
     </div>
 
     <p class="desc"><?= esc($herramienta['descripcion'] ?? '') ?></p>

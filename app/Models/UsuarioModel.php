@@ -12,7 +12,7 @@ class UsuarioModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nombre', 'email', 'password', 'telefono', 'dni', 'rol'];
+    protected $allowedFields    = ['nombre', 'email', 'password', 'telefono', 'dni', 'rol', 'razon_social', 'cuit'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -34,6 +34,13 @@ class UsuarioModel extends Model
         'password' => 'required|min_length[6]',
         'dni'      => 'required|max_length[20]|is_unique[usuarios.dni]',
         'telefono' => 'permit_empty|max_length[30]',
+        // La validacion de que el CUIT tenga el digito verificador correcto
+        // se hace aparte, en Auth::attemptRegistro() -- solo es obligatorio
+        // cuando rol es 'comerciante', y esta clase de regla condicional
+        // (obligatorio SOLO si otro campo vale X) no es algo que las reglas
+        // declarativas de CodeIgniter resuelvan bien.
+        'razon_social' => 'permit_empty|max_length[150]',
+        'cuit'         => 'permit_empty|max_length[13]',
     ];
     protected $validationMessages   = [
         'email' => [
