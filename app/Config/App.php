@@ -133,7 +133,11 @@ class App extends BaseConfig
      * @see https://www.php.net/manual/en/timezones.php for list of timezones
      *      supported by PHP.
      */
-    public string $appTimezone = 'UTC';
+    // Hora argentina: las fechas de retiro/devolucion las elige la gente en
+    // hora local, asi que "ahora" (date()) tiene que estar en la misma zona
+    // para comparar bien (ocupado ahora, no reservar en el pasado, fecha de
+    // pagos y mensajes). Con UTC todo eso quedaba corrido 3 horas.
+    public string $appTimezone = 'America/Argentina/Buenos_Aires';
 
     /**
      * --------------------------------------------------------------------------

@@ -152,6 +152,11 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   </div>
 
   <div class="booking-card">
+    <?php if (session()->getFlashdata('error')) : ?>
+      <div style="background:var(--danger-bg); color:var(--danger); border-radius:8px; padding:10px 12px; font-size:12.5px; margin-bottom:14px;">
+        <?= esc(session()->getFlashdata('error')) ?>
+      </div>
+    <?php endif ?>
     <h3>Elegí cuándo alquilarlo</h3>
     <div class="price-line" id="priceLine">$<?= number_format((float) $herramienta['precio_dia'], 0, ',', '.') ?> <span>/día</span></div>
 

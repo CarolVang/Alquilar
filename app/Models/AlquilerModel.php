@@ -254,6 +254,23 @@ class AlquilerModel extends Model
     }
 
     /**
+     * Convierte "2026-11-01 10:30:00" en un DateTime, o null si el texto no es
+     * exactamente una fecha valida con ese formato. Comparar contra el formato
+     * de vuelta descarta fechas que PHP "acomoda" en silencio (un mes 13 pasa
+     * a enero del año siguiente) y textos cualquiera, que antes tiraban error 500.
+     */
+    private function parsearFecha(string $texto): ?\DateTime
+    {
+        $fecha = \DateTime::createFromFormat('Y-m-d H:i:s', $texto);
+
+        if ($fecha === false || $fecha->format('Y-m-d H:i:s') !== $texto) {
+            return null;
+        }
+
+        return $fecha;
+    }
+
+    /**
      * Calcula el precio de una reserva en la unidad elegida (dia u hora).
      * Decision de producto de Carol (PM): las herramientas se pueden alquilar
      * por dia o por hora. Basado en el calcularPrecio() que escribio Luz en
@@ -273,8 +290,18 @@ class AlquilerModel extends Model
             return ['exito' => false, 'mensaje' => 'La herramienta no existe.'];
         }
 
-        $inicio = new \DateTime($fechaInicio);
-        $fin    = new \DateTime($fechaFin);
+        $inicio = $this->parsearFecha($fechaInicio);
+        $fin    = $this->parsearFecha($fechaFin);
+
+        if ($inicio === null || $fin === null) {
+            return ['exito' => false, 'mensaje' => 'Las fechas no tienen un formato válido.'];
+        }
+
+        // El calendario ya bloquea los dias pasados, pero eso es JavaScript y
+        // se puede saltear mandando el pedido directo: la regla de verdad va aca.
+        if ($inicio < new \DateTime()) {
+            return ['exito' => false, 'mensaje' => 'No se puede reservar en el pasado.'];
+        }
 
         if ($fin <= $inicio) {
             return ['exito' => false, 'mensaje' => 'La fecha de fin debe ser posterior a la de inicio.'];
