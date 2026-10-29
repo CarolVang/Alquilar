@@ -52,6 +52,11 @@ class AlquilerModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
+    // Una reserva ocupa la herramienta mientras esta confirmada (todavia no
+    // la retiraron) y tambien mientras esta retirada (la tienen en uso).
+    // Solo 'devuelta' y 'cancelada' liberan esas fechas.
+    private const ESTADOS_QUE_OCUPAN = ['confirmada', 'retirada'];
+
     public function haySolapamiento(int $idHerramienta, string $fechaInicio, string $fechaFin, ?int $idAlquilerExcluir = null, int $margenHoras = 2): bool
     {
         $fechaFinConMargen = (new \DateTime($fechaFin))
@@ -59,7 +64,7 @@ class AlquilerModel extends Model
             ->format('Y-m-d H:i:s');
 
         $builder = $this->where('id_herramienta', $idHerramienta)
-                         ->whereIn('estado', ['confirmada'])
+                         ->whereIn('estado', self::ESTADOS_QUE_OCUPAN)
                          ->where('fecha_inicio <', $fechaFinConMargen)
                          ->where("DATE_ADD(fecha_fin, INTERVAL {$margenHoras} HOUR) >", $fechaInicio);
 
@@ -74,7 +79,7 @@ class AlquilerModel extends Model
     {
         return $this->select('fecha_inicio, fecha_fin')
                     ->where('id_herramienta', $idHerramienta)
-                    ->where('estado', 'confirmada')
+                    ->whereIn('estado', self::ESTADOS_QUE_OCUPAN)
                     ->findAll();
     }
 
@@ -94,7 +99,7 @@ class AlquilerModel extends Model
 
         $filas = $this->select('id_herramienta, MAX(fecha_fin) AS libre_desde')
                        ->whereIn('id_herramienta', $idsHerramienta)
-                       ->where('estado', 'confirmada')
+                       ->whereIn('estado', self::ESTADOS_QUE_OCUPAN)
                        ->where('fecha_inicio <=', date('Y-m-d H:i:s'))
                        ->where('fecha_fin >=', date('Y-m-d H:i:s'))
                        ->groupBy('id_herramienta')
@@ -210,7 +215,7 @@ class AlquilerModel extends Model
         $db->transStart();
 
         $db->query(
-            'SELECT id_alquiler FROM alquileres WHERE id_herramienta = ? AND estado = "confirmada" FOR UPDATE',
+            'SELECT id_alquiler FROM alquileres WHERE id_herramienta = ? AND estado IN ("confirmada", "retirada") FOR UPDATE',
             [$idHerramienta]
         );
 
