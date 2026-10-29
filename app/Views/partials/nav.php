@@ -10,6 +10,14 @@
 $activo   = $activo ?? '';
 $logueado = (bool) session('isLoggedIn');
 
+// Aviso de "alquileres por retirar": se calcula aca mismo, en la nav, para
+// no tener que tocar todos los Controllers del sitio solo para pasar este
+// numero. Es una sola query liviana (COUNT), se corre nada mas si hay
+// sesion -- no vale la pena para un visitante anonimo.
+$porRetirar = $logueado
+    ? (new \App\Models\AlquilerModel())->contarPorRetirar((int) session('id_usuario'))
+    : 0;
+
 function navIniciales(string $nombre): string
 {
     return mb_strtoupper(mb_substr(trim($nombre), 0, 2));
@@ -24,8 +32,9 @@ function navIniciales(string $nombre): string
   .ar-nav a.link.on{ color:#fff; }
   .ar-nav a.link:hover{ color:#fff; }
   .ar-nav .perfil-chip{ display:flex; align-items:center; gap:8px; color:#fff; text-decoration:none; font-size:13px; font-weight:600; }
-  .ar-nav .avatar{ width:30px; height:30px; border-radius:50%; background:#F2A93B; color:#0B3D3C; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0; }
+  .ar-nav .avatar{ width:30px; height:30px; border-radius:50%; background:#F2A93B; color:#0B3D3C; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0; position:relative; }
   .ar-nav .avatar.anon{ background:rgba(255,255,255,.15); color:#fff; }
+  .ar-nav .aviso{ position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 3px; border-radius:8px; background:#C1503D; color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; border:1.5px solid #0B3D3C; }
 
   @media (max-width: 640px){
     .ar-nav{ gap:10px; padding:0 14px; }
@@ -50,7 +59,12 @@ function navIniciales(string $nombre): string
   </div>
   <a href="<?= $logueado ? site_url('perfil') : site_url('login') ?>" class="perfil-chip">
     <?php if ($logueado) : ?>
-      <span class="avatar"><?= esc(navIniciales((string) session('nombre'))) ?></span>
+      <span class="avatar">
+        <?= esc(navIniciales((string) session('nombre'))) ?>
+        <?php if ($porRetirar > 0) : ?>
+          <span class="aviso" title="<?= $porRetirar ?> alquiler<?= $porRetirar === 1 ? '' : 'es' ?> por retirar"><?= $porRetirar > 9 ? '9+' : $porRetirar ?></span>
+        <?php endif ?>
+      </span>
       <?= esc(session('nombre')) ?>
     <?php else : ?>
       <span class="avatar anon">?</span>

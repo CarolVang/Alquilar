@@ -135,6 +135,20 @@ class AlquilerModel extends Model
     }
 
     /**
+     * Cuantos alquileres de las herramientas de este usuario estan
+     * confirmados y todavia no se retiraron. Query liviana (un COUNT, sin
+     * traer filas) para la burbuja de aviso en la nav -- esa se corre en
+     * cada pagina mientras haya sesion, asi que conviene que sea barata.
+     */
+    public function contarPorRetirar(int $idUsuario): int
+    {
+        return $this->join('herramientas', 'herramientas.id_herramienta = alquileres.id_herramienta')
+                    ->where('herramientas.id_usuario', $idUsuario)
+                    ->where('alquileres.estado', 'confirmada')
+                    ->countAllResults();
+    }
+
+    /**
      * Cancela una reserva, solo si todavia esta 'confirmada' y le pertenece al cliente.
      */
     public function cancelarReserva(int $idAlquiler, int $idUsuario): bool

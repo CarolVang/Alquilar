@@ -49,7 +49,7 @@
   </a>
 
   <a href="<?= site_url('mis-alquileres') ?>" class="link-card">
-    <span>Mis alquileres<span class="sub">Quién alquiló tus herramientas</span></span>
+    <span>Mis alquileres<span class="sub"><?= $por_retirar > 0 ? "Tenés {$por_retirar} por retirar" : 'Quién alquiló tus herramientas' ?></span></span>
     <span aria-hidden="true">→</span>
   </a>
 
