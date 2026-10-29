@@ -162,10 +162,24 @@ intente leer o escribir esa columna.
   Ya está corregido en el repo. El otro 403 que salió en el mismo deploy
   no era del `.htaccess` sino de la carpeta contenedora de más al subir
   el zip (ver Paso 3).
-- **HTTPS**: dejé `app.baseURL` en `http://` porque no sé si InfinityFree ya
-  tiene el certificado SSL activo para tu subdominio recién creado (a veces
-  tarda). Una vez que confirmes que `https://alquilar.site.je/` carga sin
-  advertencia del navegador, cambiamos esa línea a `https://` en el `.env`.
+- **HTTPS, confirmado y ya corregido** (29 oct 2026). `app.baseURL` se dejó
+  en `http://` al principio porque no sabíamos si el SSL del subdominio ya
+  estaba activo. Una vez confirmado que `https://alquilar.site.je/` carga
+  sin advertencias, **hay que dejar `app.baseURL` en `https://` siempre**,
+  no solo por prolijidad: InfinityFree tiene un sistema anti-bot que exige
+  que cada pedido JavaScript/cookie "pase" como del mismo origen. Con
+  `baseURL` en `http://`, los navegadores modernos (ej. el "HTTPS-Only
+  Mode" de Firefox) reescriben por su cuenta el `fetch()` de
+  `publicar.php` a `https://`, mientras la página se sirvió por
+  `http://` — ese desajuste de protocolo hace que el sistema anti-bot de
+  InfinityFree deje de considerarlo "mismo origen" y responda con una
+  página HTML de desafío JS ("This site requires Javascript to work")
+  en vez de dejar pasar el pedido hasta el Controller. El síntoma en el
+  navegador es "⚠️ No pudimos conectar con el servidor" aunque el pedido
+  haya dado HTTP 200. Si esto vuelve a pasar en cualquier flujo con
+  `fetch()` (publicar, editar, pausar, etc.), lo primero a revisar es que
+  `app.baseURL` en el `.env` del servidor coincida en protocolo con cómo
+  se está accediendo al sitio.
 - **Fotos subidas**: `public/uploads/herramientas/` necesita permisos de
   escritura para que `Herramientas::crear()` pueda guardar ahí. Si al
   publicar con foto te da error, puede ser un tema de permisos de esa
