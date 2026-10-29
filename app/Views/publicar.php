@@ -191,13 +191,6 @@ $urlSubmit   = $esEdicion ? site_url('mis-herramientas/editar/' . (int) $herrami
 </div>
 
 <script>
-  // -----------------------------------------------------------------
-  // Esto es una SIMULACIÓN visual de los 3 estados (cargando/error/éxito),
-  // para mostrar el diseño mientras no está conectado el Backend real.
-  // Cuando Rodolfo conecte esto a CodeIgniter, este bloque se reemplaza
-  // por el fetch/submit real al Controller, y se muestra el banner de
-  // error o el successView según la respuesta del servidor.
-  // -----------------------------------------------------------------
   // Preview de la foto elegida, antes de mandarla al servidor.
   const uploadBox = document.getElementById('uploadBox');
   const inputFoto = document.getElementById('inputFoto');
