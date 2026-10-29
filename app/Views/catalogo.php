@@ -46,7 +46,7 @@
   .p-card{ background:var(--card); border-radius:14px; overflow:hidden; border:1px solid var(--line); text-decoration:none; color:inherit; display:flex; flex-direction:column; transition:box-shadow .15s; }
   .p-card:hover{ box-shadow:0 8px 24px rgba(0,0,0,.08); }
   .p-media{ aspect-ratio:4/3; background:var(--teal-100); display:flex; align-items:center; justify-content:center; color:var(--teal-700); position:relative; }
-  .p-media img{ width:100%; height:100%; object-fit:cover; }
+  .p-media img{ width:100%; height:100%; object-fit:contain; }
   .p-media svg{ width:36px; height:36px; }
   .pill-disp{ position:absolute; top:9px; left:9px; right:9px; display:flex; }
   .pill-disp span{ border-radius:20px; padding:4px 10px; font-size:10.5px; font-weight:700; backdrop-filter:blur(4px); }
