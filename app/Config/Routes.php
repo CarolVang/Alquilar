@@ -36,3 +36,7 @@ $routes->post('alquileres/avanzar-estado/(:num)', 'Alquileres::avanzarEstado/$1'
 
 $routes->get('pago/(:num)', 'Pago::index/$1');
 
+$routes->get('chat/(:num)', 'Chat::index/$1');
+$routes->get('chat/(:num)/mensajes', 'Chat::mensajes/$1');
+$routes->post('chat/(:num)/enviar', 'Chat::enviar/$1');
+
