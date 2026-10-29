@@ -140,6 +140,12 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
     </div>
 
     <p class="desc"><?= esc($herramienta['descripcion'] ?? '') ?></p>
+
+    <?php if (! empty($herramienta['capacidad'])) : ?>
+      <div class="spec-grid">
+        <div class="spec">Capacidad / detalle técnico<b><?= esc($herramienta['capacidad']) ?></b></div>
+      </div>
+    <?php endif ?>
   </div>
 
   <div class="booking-card">
