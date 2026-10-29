@@ -21,6 +21,29 @@ restricciones que cambian cómo se sube el proyecto:
    Eso es un riesgo de seguridad real si no se bloquea bien — por eso el
    `.htaccess` de la raíz de este repo existe y hace ese trabajo.
 
+## ⚠️ Esta rama y el sitio en vivo NO están conectados
+
+**Pushear a GitHub no actualiza `alquilar.site.je`.** Son dos cosas
+totalmente separadas: esta rama (`integracion-completa-pendiente-revision`)
+vive en GitHub, y el sitio en vivo corre con los archivos que estén,
+físicamente, en `htdocs/` del File Manager de InfinityFree en ese momento
+— lo que haya ahí es una fotografía de un commit puntual, tomada el día que
+se hizo el deploy (26 oct 2026). No hay ningún webhook ni Action que
+sincronice uno con otro.
+
+Esto ya causó un bug real (28-29 oct 2026): el campo `capacidad` se arregló
+en el código y se probó localmente, pero quedó guardando `NULL` en
+producción durante un día entero porque nadie había resubido los archivos
+modificados al servidor — el fix vivía en GitHub, no en InfinityFree.
+
+**Regla práctica:** después de cualquier cambio a un `Controller`, `Model`
+o vista con lógica PHP en esta rama, antes de darlo por "andando", hay que
+resubir a mano los archivos tocados al `htdocs/` real (vía File Manager,
+editando el archivo existente y reemplazando su contenido, o subiendo el
+archivo nuevo). `git log` entre el último commit que sí se subió y `HEAD`
+dice exactamente qué archivos faltan resubir (`git diff --stat
+<ultimo-commit-deployado>..HEAD`).
+
 ## Paso 1 — Crear la cuenta y la base de datos
 
 1. Entrá a https://app.infinityfree.com/signup y registrate con tu email.
