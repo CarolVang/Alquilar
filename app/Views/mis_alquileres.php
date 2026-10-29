@@ -177,7 +177,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
               <span class="pill <?= $color ?>"><?= esc($texto) ?></span>
               <div class="total">$<?= number_format((float) $a['precio_total'], 0, ',', '.') ?></div>
               <div class="meta" style="font-size:10.5px">tu ingreso (sin tarifa de servicio)</div>
-              <a class="mini dark" href="<?= site_url('chat/' . (int) $a['id_alquiler']) ?>">Chat</a>
+              <a class="mini dark" href="<?= site_url('mensajes/' . (int) $a['id_alquiler']) ?>">Chat</a>
               <?php if ($accion) : ?>
                 <button class="mini dark" type="button" data-id="<?= (int) $a['id_alquiler'] ?>" data-estado="<?= $accion[0] ?>"><?= esc($accion[1]) ?></button>
               <?php endif ?>

@@ -6,7 +6,15 @@ use App\Models\AlquilerModel;
 use App\Models\HerramientaModel;
 use App\Models\MensajeModel;
 
-class Chat extends BaseController
+/**
+ * Se llama "Mensajes" y no "Chat" -- y las rutas en Routes.php tambien evitan
+ * esa palabra -- porque InfinityFree bloquea con un 403 cualquier URL que
+ * contenga "chat" en el path: es una regla anti-abuso de ellos contra
+ * scripts de chat que hacen polling constante (lo mismo que hace esta
+ * pantalla). Esta a proposito, no se puede desactivar, asi que la unica
+ * forma de evitarlo es no usar esa palabra en la URL.
+ */
+class Mensajes extends BaseController
 {
     public function index($idAlquiler)
     {
@@ -25,7 +33,7 @@ class Chat extends BaseController
         $alquiler    = (new AlquilerModel())->find($idAlquiler);
         $herramienta = (new HerramientaModel())->find($alquiler['id_herramienta']);
 
-        return view('chat', [
+        return view('mensajes', [
             'id_alquiler' => $idAlquiler,
             'alquiler'    => $alquiler,
             'herramienta' => $herramienta,
@@ -33,7 +41,7 @@ class Chat extends BaseController
         ], ['debug' => false]);
     }
 
-    public function mensajes($idAlquiler)
+    public function listar($idAlquiler)
     {
         if (! $this->session->get('isLoggedIn')) {
             return $this->response->setStatusCode(401)->setJSON(['ok' => false, 'error' => 'Tenés que iniciar sesión.']);

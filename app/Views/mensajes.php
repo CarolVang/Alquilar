@@ -35,7 +35,7 @@ h1,h2{font-family:'Space Grotesk',sans-serif}
 </head>
 <body>
 
-<?= view('partials/nav', ['activo' => 'chat']) ?>
+<?= view('partials/nav', ['activo' => 'mensajes']) ?>
 
 <div class="wrap">
   <a href="<?= site_url('mis-reservas') ?>" class="back">← Volver</a>
@@ -101,7 +101,7 @@ lista.scrollTop = lista.scrollHeight;
 
 async function consultar() {
   try {
-    const res = await fetch('<?= site_url('chat/' . (int) $id_alquiler . '/mensajes') ?>');
+    const res = await fetch('<?= site_url('mensajes/' . (int) $id_alquiler . '/listar') ?>');
     const data = await res.json();
     if (data.ok && data.mensajes.length !== ultimaCantidad) {
       ultimaCantidad = data.mensajes.length;
@@ -112,7 +112,11 @@ async function consultar() {
   }
 }
 
-setInterval(consultar, 4000);
+// Cada 8s, no menos: InfinityFree bloquea URLs con "chat" justamente porque
+// el polling constante de ese tipo de pantallas carga sus servidores
+// gratuitos -- aunque esta ruta ya no se llama asi, tiene sentido no ser
+// mas agresivo de lo necesario con el mismo patron que ellos marcaron.
+setInterval(consultar, 8000);
 
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
@@ -122,7 +126,7 @@ form.addEventListener('submit', async function (e) {
   btn.disabled = true;
 
   try {
-    const res = await fetch('<?= site_url('chat/' . (int) $id_alquiler . '/enviar') ?>', {
+    const res = await fetch('<?= site_url('mensajes/' . (int) $id_alquiler . '/enviar') ?>', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
       body: new URLSearchParams({ mensaje: texto, [CSRF_TOKEN_NAME]: CSRF_HASH }),

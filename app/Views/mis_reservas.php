@@ -147,7 +147,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
               <div class="row-actions">
                 <a class="mini dark" href="<?= site_url('detalle/' . (int) $r['id_herramienta']) ?>">Ver herramienta</a>
                 <a class="mini dark" href="<?= site_url('pago/' . (int) $r['id_alquiler']) ?>">Comprobante</a>
-                <a class="mini dark" href="<?= site_url('chat/' . (int) $r['id_alquiler']) ?>">Chat</a>
+                <a class="mini dark" href="<?= site_url('mensajes/' . (int) $r['id_alquiler']) ?>">Chat</a>
                 <?php if ($r['estado'] === 'confirmada') : ?>
                   <button class="mini line" type="button" data-cancel="<?= (int) $r['id_alquiler'] ?>">Cancelar reserva</button>
                 <?php endif ?>

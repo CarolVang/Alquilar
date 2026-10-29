@@ -36,7 +36,9 @@ $routes->post('alquileres/avanzar-estado/(:num)', 'Alquileres::avanzarEstado/$1'
 
 $routes->get('pago/(:num)', 'Pago::index/$1');
 
-$routes->get('chat/(:num)', 'Chat::index/$1');
-$routes->get('chat/(:num)/mensajes', 'Chat::mensajes/$1');
-$routes->post('chat/(:num)/enviar', 'Chat::enviar/$1');
+// La palabra "chat" no puede aparecer en ninguna URL de este proyecto:
+// InfinityFree la bloquea con un 403 (ver el comentario en Mensajes.php).
+$routes->get('mensajes/(:num)', 'Mensajes::index/$1');
+$routes->get('mensajes/(:num)/listar', 'Mensajes::listar/$1');
+$routes->post('mensajes/(:num)/enviar', 'Mensajes::enviar/$1');
 
