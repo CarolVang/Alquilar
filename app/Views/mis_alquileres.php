@@ -11,7 +11,7 @@ function fechaCortaEs2(string $fecha, array $diasEs, array $mesesEs): string
 {
     $dt = new DateTime($fecha);
 
-    return $diasEs[$dt->format('D')] . ' ' . (int) $dt->format('j') . ' ' . $mesesEs[(int) $dt->format('n')];
+    return $diasEs[$dt->format('D')] . ' ' . (int) $dt->format('j') . ' ' . $mesesEs[(int) $dt->format('n')] . ' ' . $dt->format('H:i');
 }
 
 $grupos = ['todos' => [], 'retirar' => [], 'uso' => [], 'fin' => [], 'canc' => []];
