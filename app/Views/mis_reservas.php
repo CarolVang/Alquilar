@@ -78,6 +78,7 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
 .mini{font-size:11.5px;font-weight:700;border-radius:6px;padding:7px 12px;border:none;cursor:pointer;font-family:inherit}
 .mini.dark{background:var(--teal-900);color:#fff;text-decoration:none;display:inline-block}
 .mini.line{background:#fff;color:var(--danger);border:1px solid var(--line)}
+.priv{font-size:11px;color:var(--muted);font-style:italic}
 .toast-ar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--teal-900);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:5;max-width:90vw;text-align:center}
 .toast-ar.on{opacity:1}.toast-ar.bad{background:var(--danger)}
 @media (max-width:640px){.wrap{padding:20px 14px 48px}.row{flex-wrap:wrap}.row .side{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;width:100%;text-align:left}.row-actions{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}}
@@ -119,7 +120,10 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
           <?php endif ?>
         </div>
       <?php else : ?>
-        <?php foreach ($items as $r) : [$texto, $color] = $pills[$r['estado']] ?? [$r['estado'], 'gray']; ?>
+        <?php foreach ($items as $r) :
+            [$texto, $color] = $pills[$r['estado']] ?? [$r['estado'], 'gray'];
+            $activo = $r['estado'] === 'confirmada' || $r['estado'] === 'retirada';
+        ?>
           <div class="row">
             <div class="ic">
               <?php if (! empty($r['foto_url'])) : ?>
@@ -133,7 +137,8 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif}
               <div class="meta">
                 Retador: <b><?= esc($r['propietario_nombre']) ?></b><?php if (($r['propietario_rol'] ?? '') === 'comerciante') : ?> <span title="Empresa" style="display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;background:var(--teal-600);color:#fff;border-radius:50%;font-size:8.5px;">✓</span><?php endif ?> · N° <b>#<?= (int) $r['id_alquiler'] ?></b><br>
                 <?= esc(fechaCortaEs($r['fecha_inicio'], $diasEs, $mesesEs)) ?> al <?= esc(fechaCortaEs($r['fecha_fin'], $diasEs, $mesesEs)) ?>
-                · por <?= $r['unidad_precio'] === 'hora' ? 'hora' : 'día' ?>
+                · por <?= $r['unidad_precio'] === 'hora' ? 'hora' : 'día' ?><br>
+                <?= $activo ? 'Tel. ' . esc($r['propietario_telefono'] ?? '—') : '<span class="priv">Contacto disponible solo mientras la reserva está activa</span>' ?>
               </div>
             </div>
             <div class="side">
