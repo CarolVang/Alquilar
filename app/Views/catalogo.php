@@ -209,10 +209,20 @@
       ];
   }, $herramientas)) ?>;
 
+  // Todo texto que escribe un usuario (nombre de la herramienta, nombre del
+  // dueño) pasa por aca antes de entrar al innerHTML: sin esto, un "nombre"
+  // como <img src=x onerror=...> se ejecutaria en el navegador de cualquiera
+  // que abra el catalogo (XSS). Es el equivalente en JS del esc() de PHP.
+  function esc(texto){
+    return String(texto ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   function pillDisponibilidad(t){
     if(t.estado !== 'disponible') return '';
     return t.libreDesde
-      ? `<span class="ocupado">Ocupado · libre desde el ${t.libreDesde}</span>`
+      ? `<span class="ocupado">Ocupado · libre desde el ${esc(t.libreDesde)}</span>`
       : `<span class="ok">Disponible hoy</span>`;
   }
 
@@ -221,16 +231,16 @@
     grid.innerHTML = list.map(t => `
       <a class="p-card" href="/detalle/${t.id}">
         <div class="p-media">
-          ${t.foto ? `<img src="${t.foto}" alt="${t.name}">` : ICON_GENERICO}
+          ${t.foto ? `<img src="${esc(t.foto)}" alt="${esc(t.name)}">` : ICON_GENERICO}
           <div class="pill-disp">${pillDisponibilidad(t)}</div>
         </div>
         <div class="p-body">
-          ${t.categoria ? `<span class="cat-tag">${t.categoria}</span>` : ''}
-          <h3>${t.name}</h3>
+          ${t.categoria ? `<span class="cat-tag">${esc(t.categoria)}</span>` : ''}
+          <h3>${esc(t.name)}</h3>
           ${t.estado === 'disponible' ? `
             <div class="price-row">
               <div class="price">$${t.price.toLocaleString('es-AR')}<span>por día${t.priceHora ? ` · $${t.priceHora.toLocaleString('es-AR')}/hora` : ''}</span></div>
-              ${t.dueno ? `<span class="dueno-pill">${t.dueno}</span>` : ''}
+              ${t.dueno ? `<span class="dueno-pill">${esc(t.dueno)}</span>` : ''}
             </div>
           ` : `<span class="no-disponible-tag">No disponible</span>`}
         </div>
