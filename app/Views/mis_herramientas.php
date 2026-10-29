@@ -112,7 +112,7 @@
     <div class="tool-card">
       <div class="tool-media">
         <?php if (! empty($h['foto_url'])) : ?>
-          <img src="<?= esc($h['foto_url']) ?>" alt="<?= esc($h['nombre']) ?>" style="width:100%;height:100%;object-fit:cover;">
+          <img src="<?= esc($h['foto_url']) ?>" alt="<?= esc($h['nombre']) ?>" style="width:100%;height:100%;object-fit:contain;">
         <?php else : ?>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="12" height="6" rx="1"/><path d="M16 12h4v2h-4"/></svg>
         <?php endif ?>

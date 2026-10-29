@@ -124,7 +124,7 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   <div class="detail-info">
     <div class="gallery-main">
       <?php if (! empty($herramienta['foto_url'])) : ?>
-        <img src="<?= esc($herramienta['foto_url']) ?>" alt="<?= esc($herramienta['nombre']) ?>" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+        <img src="<?= esc($herramienta['foto_url']) ?>" alt="<?= esc($herramienta['nombre']) ?>" style="width:100%;height:100%;object-fit:contain;border-radius:12px;">
       <?php else : ?>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v6M16 4v6"/></svg>
       <?php endif ?>
