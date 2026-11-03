@@ -70,8 +70,13 @@ class Security extends BaseConfig
      * --------------------------------------------------------------------------
      *
      * Regenerate CSRF Token on every submission.
+     *
+     * En false: el token vale para toda la sesion (hasta $expires). Asi el
+     * boton "Volver a intentar" de la reserva (que repite el fetch en la
+     * misma pagina) no manda un token ya vencido. Sigue protegiendo igual
+     * contra CSRF: el atacante no puede leer el token.
      */
-    public bool $regenerate = true;
+    public bool $regenerate = false;
 
     /**
      * --------------------------------------------------------------------------
