@@ -14,6 +14,13 @@ class HerramientaModel extends Model
     protected $protectFields     = true;
     protected $allowedFields     = ['id_usuario', 'nombre', 'categoria', 'descripcion', 'precio_dia', 'precio_hora', 'capacidad', 'estado', 'foto_url'];
 
+    /**
+     * Easter egg "Volver al Futuro": el condensador de flujo solo se alquila
+     * el 5 de noviembre (el dia de 1955 en que Doc Brown lo invento). La
+     * fecha se guarda como "mes-dia" porque vale para cualquier año.
+     */
+    public const DIA_CONDENSADOR = '11-05';
+
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
 
@@ -105,6 +112,16 @@ class HerramientaModel extends Model
         $filas = $this->where('id_usuario', $idUsuario)->update($idHerramienta, $data);
 
         return (bool) $filas;
+    }
+
+    /**
+     * ¿Es el condensador de flujo? Se reconoce por el nombre de la
+     * publicacion. Es static porque no necesita la base: la usan la vista
+     * del detalle (para el calendario) y AlquilerModel (para la regla real).
+     */
+    public static function esCondensadorDeFlujo(string $nombre): bool
+    {
+        return mb_stripos($nombre, 'condensador de flujo') !== false;
     }
 
     /**

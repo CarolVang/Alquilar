@@ -6,6 +6,7 @@ $mes = (int) $hoy->format('n');
 $diasEnMes = (int) $hoy->format('t');
 $primerDiaSemana = ((int) (new DateTime("$anio-$mes-01"))->format('N')) - 1; // 0 = lunes
 $nombreMes = $mesesEs[$mes] . ' ' . $anio;
+$esCondensador = \App\Models\HerramientaModel::esCondensadorDeFlujo((string) $herramienta['nombre']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -67,6 +68,14 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   .cal-day.booked{ background:var(--danger-bg); color:var(--danger); border-color:transparent; cursor:not-allowed; }
   .cal-day.past{ background:var(--teal-50); color:var(--line); border-color:transparent; cursor:not-allowed; }
   .cal-day.off{ visibility:hidden; }
+  .cal-day.condensador{ background:#F1F3F2; color:#B9C2BF; border-color:transparent; cursor:not-allowed; }
+  .aviso-88{ font-size:11.5px; color:var(--teal-600); font-weight:600; margin:8px 0 2px; }
+  /* Easter egg: el DeLorean cruza la pantalla de izquierda a derecha.
+     Arranca fuera de la pantalla (translateX(-100%)) y termina afuera del
+     otro lado (100vw). ease-in = arranca lento y acelera, como llegando a 88 mph. */
+  .delorean{ position:fixed; left:0; bottom:16vh; width:min(560px, 85vw); transform:translateX(-100%); pointer-events:none; z-index:9999; }
+  .delorean.va{ animation:cruzar 1.9s cubic-bezier(.6,0,.9,.5) forwards; }
+  @keyframes cruzar{ from{ transform:translateX(-100%); } to{ transform:translateX(100vw); } }
   .cal-day.selected{ background:var(--teal-900); color:#fff; border-color:var(--teal-900); }
 
   .field-label{ font-size:11.5px; font-weight:600; color:var(--muted); margin:0 0 5px; display:block; }
@@ -179,6 +188,9 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
     </div>
     <div style="font-size:11.5px; font-weight:600; margin-bottom:6px;"><?= esc($nombreMes) ?></div>
     <div class="cal-grid" id="calGrid"></div>
+    <?php if ($esCondensador) : ?>
+      <div class="aviso-88">⚡ Esta herramienta solo viaja el 5 de noviembre.</div>
+    <?php endif ?>
 
     <div class="form-row">
       <div class="field-group" id="group-fechaInicio">
@@ -238,6 +250,11 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   const PERIODOS_OCUPADOS = <?= json_encode($periodos_ocupados) ?>;
   const HOY_DIA = <?= (int) $hoy->format('j') ?>; // dia del mes de hoy (el calendario siempre muestra el mes actual)
 
+  // Easter egg: si es el condensador de flujo, el unico dia elegible es el
+  // 5 de noviembre. La regla de verdad esta en AlquilerModel::calcularPrecio().
+  const ES_CONDENSADOR = <?= $esCondensador ? 'true' : 'false' ?>;
+  const DIA_CONDENSADOR = `${ANIO}-<?= \App\Models\HerramientaModel::DIA_CONDENSADOR ?>`;
+
   function fechaDelDia(d){
     const mm = String(MES).padStart(2, '0');
     const dd = String(d).padStart(2, '0');
@@ -275,6 +292,10 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
         html += `<div class="cal-day past" data-day="${d}">${d}</div>`;
         continue;
       }
+      if(ES_CONDENSADOR && fechaDelDia(d) !== DIA_CONDENSADOR){
+        html += `<div class="cal-day condensador" data-day="${d}" title="Solo el 5 de noviembre">${d}</div>`;
+        continue;
+      }
       const ocupado = diaOcupado(d);
       html += `<div class="cal-day ${ocupado ? 'booked' : 'free'}" data-day="${d}" onclick="${ocupado ? '' : `pickDay(${d})`}">${d}</div>`;
     }
@@ -282,8 +303,9 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
   }
 
   function pickDay(d){
-    if(MODO === 'hora'){
-      // Por hora solo se reserva dentro de un mismo dia.
+    if(MODO === 'hora' || ES_CONDENSADOR){
+      // Por hora solo se reserva dentro de un mismo dia. El condensador
+      // tambien: su unico dia posible es el 5, asi que un clic lo elige entero.
       seleccion = { inicio: d, fin: d };
       renderSeleccion();
       return;
@@ -394,8 +416,42 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
       fecha_inicio: fechaInicio,
       fecha_fin: fechaFin,
     });
-    window.location.href = '/confirmacion?' + params.toString();
+    const destino = '/confirmacion?' + params.toString();
+
+    if(ES_CONDENSADOR){
+      viajarEnElTiempo(destino);
+    } else {
+      window.location.href = destino;
+    }
   });
+
+  // Easter egg: el DeLorean cruza la pantalla y recien al terminar se sigue
+  // a la confirmacion. Si el usuario pidio "reducir movimiento" en su sistema,
+  // se respeta y se va directo, sin animacion.
+  function viajarEnElTiempo(destino){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      window.location.href = destino;
+      return;
+    }
+    document.getElementById('btnReservar').disabled = true;
+    const auto = document.createElement('img');
+    auto.src = <?= json_encode(base_url('img/delorean.png')) ?>;
+    auto.alt = '';
+    auto.className = 'delorean';
+    let yaSalio = false;
+    const seguir = () => { if(!yaSalio){ yaSalio = true; window.location.href = destino; } };
+    auto.addEventListener('animationend', seguir);
+    document.body.appendChild(auto);
+    // Se espera a que la imagen este lista para que no cruce "a medio cargar".
+    // El setTimeout es la red de seguridad por si animationend nunca llega.
+    auto.decode().catch(() => {}).finally(() => {
+      auto.classList.add('va');
+      setTimeout(seguir, 2600);
+    });
+  }
+
+  // Se precarga el DeLorean apenas abre la pagina, asi al tocar Reservar ya esta en cache.
+  if(ES_CONDENSADOR){ new Image().src = <?= json_encode(base_url('img/delorean.png')) ?>; }
 
   buildCalendar();
 </script>

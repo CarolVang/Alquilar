@@ -321,7 +321,7 @@ class AlquilerModel extends Model
     public function calcularPrecio(int $idHerramienta, string $unidadPrecio, string $fechaInicio, string $fechaFin): array
     {
         $herramienta = $this->db->table('herramientas')
-                                 ->select('precio_dia, precio_hora, estado')
+                                 ->select('nombre, precio_dia, precio_hora, estado')
                                  ->where('id_herramienta', $idHerramienta)
                                  ->get()
                                  ->getRowArray();
@@ -351,6 +351,15 @@ class AlquilerModel extends Model
 
         if ($fin <= $inicio) {
             return ['exito' => false, 'mensaje' => 'La fecha de fin debe ser posterior a la de inicio.'];
+        }
+
+        // Easter egg: el condensador de flujo solo viaja el 5 de noviembre.
+        // El calendario ya apaga los demas dias, pero (igual que con las fechas
+        // pasadas) la regla de verdad tiene que estar del lado del servidor.
+        if (HerramientaModel::esCondensadorDeFlujo((string) $herramienta['nombre'])
+            && ($inicio->format('m-d') !== HerramientaModel::DIA_CONDENSADOR
+                || $fin->format('m-d') !== HerramientaModel::DIA_CONDENSADOR)) {
+            return ['exito' => false, 'mensaje' => 'El condensador de flujo solo se puede alquilar el 5 de noviembre.'];
         }
 
         if ($unidadPrecio === 'hora') {
