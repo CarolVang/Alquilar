@@ -198,6 +198,8 @@ $horaDevolucion = (new DateTime($fecha_fin))->format('H:i');
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
       body: new URLSearchParams({
+        // Token anti-CSRF: sin esto el servidor rechaza el POST (403).
+        <?= json_encode(csrf_token()) ?>: <?= json_encode(csrf_hash()) ?>,
         id_herramienta: <?= (int) $id_herramienta ?>,
         fecha_inicio: <?= json_encode($fecha_inicio) ?>,
         fecha_fin: <?= json_encode($fecha_fin) ?>,
