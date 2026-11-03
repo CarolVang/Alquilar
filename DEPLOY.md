@@ -229,8 +229,9 @@ Cada bloque se corre **una sola vez**, en orden, en phpMyAdmin → pestaña SQL.
 
 Si se publica una herramienta cuyo nombre contenga "condensador de flujo",
 solo se puede reservar el **5 de noviembre** y, al tocar Reservar, un DeLorean
-cruza la pantalla. La imagen esta en `public/img/delorean.png` (y su fuente
-editable en `public/img/delorean.svg`): esa carpeta se sube junto con `app/`.
+cruza la pantalla. La imagen esta en `public/img/delorean.png` (PNG con fondo
+transparente, 1000 px de ancho): esa carpeta se sube junto con `app/`. Para
+cambiar el auto alcanza con reemplazar ese archivo; el codigo no se toca.
 
 ## Problemas conocidos / cosas para probar en vivo
 
