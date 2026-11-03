@@ -7,6 +7,10 @@ $diasEnMes = (int) $hoy->format('t');
 $primerDiaSemana = ((int) (new DateTime("$anio-$mes-01"))->format('N')) - 1; // 0 = lunes
 $nombreMes = $mesesEs[$mes] . ' ' . $anio;
 $esCondensador = \App\Models\HerramientaModel::esCondensadorDeFlujo((string) $herramienta['nombre']);
+// "?v=<fecha del archivo>": si se reemplaza la imagen, la direccion cambia sola y
+// el navegador no muestra la copia vieja que tenia guardada (cache busting).
+$archivoDelorean = FCPATH . 'img/delorean.png';
+$urlDelorean = base_url('img/delorean.png') . (is_file($archivoDelorean) ? '?v=' . filemtime($archivoDelorean) : '');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -435,7 +439,7 @@ $esCondensador = \App\Models\HerramientaModel::esCondensadorDeFlujo((string) $he
     }
     document.getElementById('btnReservar').disabled = true;
     const auto = document.createElement('img');
-    auto.src = <?= json_encode(base_url('img/delorean.png')) ?>;
+    auto.src = <?= json_encode($urlDelorean) ?>;
     auto.alt = '';
     auto.className = 'delorean';
     let yaSalio = false;
@@ -451,7 +455,7 @@ $esCondensador = \App\Models\HerramientaModel::esCondensadorDeFlujo((string) $he
   }
 
   // Se precarga el DeLorean apenas abre la pagina, asi al tocar Reservar ya esta en cache.
-  if(ES_CONDENSADOR){ new Image().src = <?= json_encode(base_url('img/delorean.png')) ?>; }
+  if(ES_CONDENSADOR){ new Image().src = <?= json_encode($urlDelorean) ?>; }
 
   buildCalendar();
 </script>
