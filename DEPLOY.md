@@ -166,15 +166,71 @@ mano por phpMyAdmin, en la pestaña **SQL** de la base, o el sitio en vivo
 va a tirar un error SQL ("Unknown column") en cuanto el codigo nuevo
 intente leer o escribir esa columna.
 
-- **Columna `capacidad` en `herramientas`** (agregada el 28 oct 2026, despues
-  del deploy real — mismo tipo de bug que "categoria": el campo existia en el
-  formulario pero nunca se guardaba). Mientras esto no se corra en la base de
-  InfinityFree, publicar o editar una herramienta ahi va a fallar. Correr una
-  sola vez en phpMyAdmin → pestaña SQL:
+Cada bloque se corre **una sola vez**, en orden, en phpMyAdmin → pestaña SQL.
+
+- **Columna `capacidad` en `herramientas`** (28 oct 2026, ✅ ya aplicado en
+  vivo). Mismo tipo de bug que "categoria": el campo existia en el
+  formulario pero nunca se guardaba.
 
   ```sql
   ALTER TABLE herramientas ADD COLUMN capacidad VARCHAR(100) NULL AFTER precio_hora;
   ```
+
+- **Cuentas de empresa: `razon_social` y `cuit` en `usuarios`** (29 oct 2026,
+  ✅ ya aplicado en vivo).
+
+  ```sql
+  ALTER TABLE usuarios
+    ADD COLUMN razon_social VARCHAR(150) NULL AFTER rol,
+    ADD COLUMN cuit VARCHAR(13) NULL AFTER razon_social;
+  ```
+
+- **Tabla `mensajes` del chat entre usuarios** (29 oct 2026, ✅ ya aplicado
+  en vivo).
+
+  ```sql
+  CREATE TABLE mensajes (
+    id_mensaje  INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    id_alquiler INT(11) UNSIGNED NOT NULL,
+    id_usuario  INT(11) UNSIGNED NOT NULL,
+    mensaje     VARCHAR(500) NOT NULL,
+    creado_en   DATETIME NOT NULL,
+    PRIMARY KEY (id_mensaje),
+    KEY id_alquiler (id_alquiler),
+    CONSTRAINT mensajes_id_alquiler_foreign FOREIGN KEY (id_alquiler) REFERENCES alquileres (id_alquiler) ON DELETE CASCADE,
+    CONSTRAINT mensajes_id_usuario_foreign FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  ```
+
+- **Panel de administrador: `suspendido` y `verificado` en `usuarios`**
+  (3 nov 2026, ⏳ pendiente). Sin esto, el login entero falla, porque el
+  filtro `CuentaActiva` lee `suspendido` en cada pedido.
+
+  ```sql
+  ALTER TABLE usuarios
+    ADD COLUMN suspendido TINYINT(1) NOT NULL DEFAULT 0 AFTER cuit,
+    ADD COLUMN verificado TINYINT(1) NOT NULL DEFAULT 0 AFTER suspendido;
+  ```
+
+  No hay pantalla para crear administradores (a proposito: si existiera,
+  cualquiera podria intentar darse el rol). Se asigna a mano, cambiando el
+  email por el de la cuenta que va a administrar:
+
+  ```sql
+  UPDATE usuarios SET rol = 'admin' WHERE email = 'tu-email@ejemplo.com';
+  ```
+
+  Ojo: las empresas que ya existian quedan con `verificado = 0`, asi que
+  pierden la insignia hasta que un admin las verifique desde `/admin`.
+  Despues de cambiar el rol alcanza con recargar la pagina: `CuentaActiva`
+  vuelve a leer el rol de la base en cada pedido.
+
+## Easter egg: el condensador de flujo
+
+Si se publica una herramienta cuyo nombre contenga "condensador de flujo",
+solo se puede reservar el **5 de noviembre** y, al tocar Reservar, un DeLorean
+cruza la pantalla. La imagen esta en `public/img/delorean.png` (y su fuente
+editable en `public/img/delorean.svg`): esa carpeta se sube junto con `app/`.
 
 ## Problemas conocidos / cosas para probar en vivo
 
