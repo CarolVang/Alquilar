@@ -3,9 +3,8 @@
  * Nav compartida. Navegar el catalogo es publico; "Publicar" y "Mis reservas"
  * quedan siempre visibles pero sus controllers redirigen a /login si no hay
  * sesion (no hay nada que ocultar, la accion es la que esta protegida).
- * No se filtra por rol: ni Herramientas::crear() ni Reserva::confirmar()
- * distinguen cliente/retador, asi que mostrar u ocultar links segun rol
- * era una distincion que la app nunca aplicaba de verdad.
+ * El unico link que depende del rol es "Admin": mostrarlo solo es comodidad,
+ * la proteccion real es AdminFilter sobre todo el grupo /admin.
  */
 $activo   = $activo ?? '';
 $logueado = (bool) session('isLoggedIn');
@@ -56,6 +55,9 @@ function navIniciales(string $nombre): string
     <a href="<?= site_url('/') ?>" class="link<?= $activo === 'catalogo' ? ' on' : '' ?>">Catálogo</a>
     <a href="<?= site_url('publicar-herramienta') ?>" class="link<?= $activo === 'publicar' ? ' on' : '' ?>">Publicar</a>
     <a href="<?= site_url('mis-reservas') ?>" class="link<?= $activo === 'mis-reservas' ? ' on' : '' ?>">Mis reservas</a>
+    <?php if (session('rol') === 'admin') : ?>
+      <a href="<?= site_url('admin') ?>" class="link<?= $activo === 'admin' ? ' on' : '' ?>">Admin</a>
+    <?php endif ?>
   </div>
   <a href="<?= $logueado ? site_url('perfil') : site_url('login') ?>" class="perfil-chip">
     <?php if ($logueado) : ?>

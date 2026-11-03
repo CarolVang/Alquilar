@@ -36,7 +36,7 @@ class HerramientaModel extends Model
         'precio_dia'  => 'required|decimal|greater_than[0]',
         'precio_hora' => 'permit_empty|decimal|greater_than[0]',
         'capacidad'   => 'permit_empty|max_length[100]',
-        'estado'      => 'permit_empty|in_list[disponible,alquilada,no_disponible]',
+        'estado'      => 'permit_empty|in_list[disponible,alquilada,no_disponible,bloqueada]',
         // La URL la genera el servidor al mover el archivo subido (Herramientas::crear()),
         // nunca viene como texto libre del usuario, por eso no exige valid_url_strict.
         'foto_url'    => 'permit_empty|max_length[255]',
@@ -73,7 +73,22 @@ class HerramientaModel extends Model
 
         $filas = $this->where('id_herramienta', $idHerramienta)
                       ->where('id_usuario', $idUsuario)
+                      ->where('estado !=', 'bloqueada')   // si la bloqueó un admin, el dueño no la puede reactivar
                       ->set(['estado' => $nuevoEstado])
+                      ->update();
+
+        return $filas && $this->db->affectedRows() > 0;
+    }
+
+    /**
+     * Solo para el panel de administrador: bloquea una publicación (desaparece
+     * del catálogo, no se puede reservar y el dueño no la puede reactivar) o
+     * la desbloquea, dejándola disponible otra vez.
+     */
+    public function cambiarBloqueo(int $idHerramienta, bool $bloquear): bool
+    {
+        $filas = $this->where('id_herramienta', $idHerramienta)
+                      ->set(['estado' => $bloquear ? 'bloqueada' : 'disponible'])
                       ->update();
 
         return $filas && $this->db->affectedRows() > 0;
@@ -92,10 +107,23 @@ class HerramientaModel extends Model
         return (bool) $filas;
     }
 
+    /**
+     * Para el panel de administrador: todas las publicaciones, incluidas las
+     * pausadas y las bloqueadas (el catalogo publico las bloqueadas no las trae).
+     */
+    public function getParaAdmin(): array
+    {
+        return $this->select('herramientas.id_herramienta, herramientas.nombre, herramientas.categoria, herramientas.precio_dia, herramientas.estado, usuarios.nombre AS duenio')
+                    ->join('usuarios', 'usuarios.id_usuario = herramientas.id_usuario')
+                    ->orderBy('herramientas.id_herramienta', 'DESC')
+                    ->findAll();
+    }
+
     public function getCatalogoOrdenado()
     {
         return $this->select('herramientas.*, usuarios.nombre AS propietario_nombre')
                     ->join('usuarios', 'usuarios.id_usuario = herramientas.id_usuario')
+                    ->where('herramientas.estado !=', 'bloqueada')
                     ->orderBy(
                         "FIELD(herramientas.estado, 'disponible', 'no_disponible', 'alquilada')",
                         '',

@@ -118,7 +118,7 @@ class AlquilerModel extends Model
      */
     public function getReservasCliente(int $idUsuario): array
     {
-        return $this->select('alquileres.*, herramientas.nombre AS herramienta_nombre, herramientas.foto_url, usuarios.nombre AS propietario_nombre, usuarios.rol AS propietario_rol, usuarios.telefono AS propietario_telefono')
+        return $this->select('alquileres.*, herramientas.nombre AS herramienta_nombre, herramientas.foto_url, usuarios.nombre AS propietario_nombre, usuarios.rol AS propietario_rol, usuarios.verificado AS propietario_verificado, usuarios.telefono AS propietario_telefono')
                     ->join('herramientas', 'herramientas.id_herramienta = alquileres.id_herramienta')
                     ->join('usuarios', 'usuarios.id_usuario = herramientas.id_usuario')
                     ->where('alquileres.id_usuario', $idUsuario)
@@ -131,7 +131,7 @@ class AlquilerModel extends Model
      */
     public function getAlquileresPropietario(int $idUsuario): array
     {
-        return $this->select('alquileres.*, herramientas.nombre AS herramienta_nombre, herramientas.foto_url, usuarios.nombre AS cliente_nombre, usuarios.telefono AS cliente_telefono, usuarios.rol AS cliente_rol')
+        return $this->select('alquileres.*, herramientas.nombre AS herramienta_nombre, herramientas.foto_url, usuarios.nombre AS cliente_nombre, usuarios.telefono AS cliente_telefono, usuarios.rol AS cliente_rol, usuarios.verificado AS cliente_verificado')
                     ->join('herramientas', 'herramientas.id_herramienta = alquileres.id_herramienta')
                     ->join('usuarios', 'usuarios.id_usuario = alquileres.id_usuario')
                     ->where('herramientas.id_usuario', $idUsuario)
@@ -151,6 +151,46 @@ class AlquilerModel extends Model
                     ->where('herramientas.id_usuario', $idUsuario)
                     ->where('alquileres.estado', 'confirmada')
                     ->countAllResults();
+    }
+
+    /**
+     * Para el panel de administrador: todos los alquileres, con la herramienta,
+     * el cliente y el dueño. La tabla usuarios entra dos veces con distinto
+     * alias (cli y due), porque una fila tiene dos personas distintas.
+     */
+    public function getParaAdmin(): array
+    {
+        return $this->select('alquileres.id_alquiler, alquileres.fecha_inicio, alquileres.fecha_fin, alquileres.estado, alquileres.precio_total, alquileres.unidad_precio, herramientas.nombre AS herramienta, cli.nombre AS cliente, due.nombre AS duenio')
+                    ->join('herramientas', 'herramientas.id_herramienta = alquileres.id_herramienta')
+                    ->join('usuarios cli', 'cli.id_usuario = alquileres.id_usuario')
+                    ->join('usuarios due', 'due.id_usuario = herramientas.id_usuario')
+                    ->orderBy('alquileres.id_alquiler', 'DESC')
+                    ->findAll();
+    }
+
+    /**
+     * Para el panel: cuantos alquileres hay en cada estado, ej. ['confirmada' => 3, 'devuelta' => 5].
+     */
+    public function contarPorEstado(): array
+    {
+        $filas = $this->select('estado, COUNT(*) AS cantidad')->groupBy('estado')->findAll();
+
+        return array_column($filas, 'cantidad', 'estado');
+    }
+
+    /**
+     * Para el panel: lo cobrado (simulado) en reservas que no se cancelaron.
+     */
+    public function totalFacturado(): float
+    {
+        $fila = $this->db->table('pagos')
+                         ->selectSum('pagos.monto', 'total')
+                         ->join('alquileres', 'alquileres.id_alquiler = pagos.id_alquiler')
+                         ->where('alquileres.estado !=', 'cancelada')
+                         ->get()
+                         ->getRowArray();
+
+        return (float) ($fila['total'] ?? 0);
     }
 
     /**
@@ -281,13 +321,19 @@ class AlquilerModel extends Model
     public function calcularPrecio(int $idHerramienta, string $unidadPrecio, string $fechaInicio, string $fechaFin): array
     {
         $herramienta = $this->db->table('herramientas')
-                                 ->select('precio_dia, precio_hora')
+                                 ->select('precio_dia, precio_hora, estado')
                                  ->where('id_herramienta', $idHerramienta)
                                  ->get()
                                  ->getRowArray();
 
         if ($herramienta === null) {
             return ['exito' => false, 'mensaje' => 'La herramienta no existe.'];
+        }
+
+        // Pausada por el dueño o bloqueada por un admin: no se alquila. Antes
+        // solo lo marcaba el catalogo; el detalle y /reservar dejaban pasar.
+        if ($herramienta['estado'] !== 'disponible') {
+            return ['exito' => false, 'mensaje' => 'Esta herramienta no está disponible para alquilar en este momento.'];
         }
 
         $inicio = $this->parsearFecha($fechaInicio);

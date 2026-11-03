@@ -137,8 +137,8 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
     <div class="owner-row">
       <div class="owner-avatar"><?= esc(strtoupper(substr($propietario['nombre'] ?? '?', 0, 2))) ?></div>
       Publicado por <b style="color:var(--ink)"><?= esc($propietario['nombre'] ?? 'Usuario') ?></b>
-      <?php if (($propietario['rol'] ?? '') === 'comerciante') : ?>
-        <span title="Empresa" style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:var(--teal-600);color:#fff;border-radius:50%;font-size:9px;margin-left:3px;">✓</span>
+      <?php if (($propietario['rol'] ?? '') === 'comerciante' && (int) ($propietario['verificado'] ?? 0) === 1) : ?>
+        <span title="Empresa verificada" style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;background:var(--teal-600);color:#fff;border-radius:50%;font-size:9px;margin-left:3px;">✓</span>
       <?php endif ?>
     </div>
 
@@ -155,6 +155,11 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
     <?php if (session()->getFlashdata('error')) : ?>
       <div style="background:var(--danger-bg); color:var(--danger); border-radius:8px; padding:10px 12px; font-size:12.5px; margin-bottom:14px;">
         <?= esc(session()->getFlashdata('error')) ?>
+      </div>
+    <?php endif ?>
+    <?php if ($herramienta['estado'] !== 'disponible') : ?>
+      <div style="background:var(--pending-bg); color:var(--pending); border-radius:8px; padding:10px 12px; font-size:12.5px; margin-bottom:14px;">
+        <?= $herramienta['estado'] === 'bloqueada' ? 'Esta publicación fue bloqueada por un administrador.' : 'El dueño pausó esta herramienta: por ahora no se puede reservar.' ?>
       </div>
     <?php endif ?>
     <h3>Elegí cuándo alquilarlo</h3>
@@ -213,7 +218,7 @@ $nombreMes = $mesesEs[$mes] . ' ' . $anio;
       <div class="summary-row total"><span>Total</span><span id="summaryTotal"></span></div>
     </div>
 
-    <button class="reservar-btn" id="btnReservar">Reservar</button>
+    <button class="reservar-btn" id="btnReservar"<?= $herramienta['estado'] !== 'disponible' ? ' disabled style="opacity:.5;cursor:not-allowed"' : '' ?>>Reservar</button>
     <div class="toast" id="toastError">⚠️ Revisá los datos marcados antes de continuar.</div>
   </div>
 

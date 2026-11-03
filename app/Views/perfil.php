@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--teal-900:#0B3D3C;--teal-700:#12524F;--teal-100:#E4EDE9;--teal-50:#F2F6F4;--amber-500:#F2A93B;--ink:#16241F;--muted:#5F6E68;--line:#E4E7E3;--card:#fff;--danger:#C1503D}
+  :root{--teal-900:#0B3D3C;--teal-700:#12524F;--teal-600:#1C6B63;--teal-100:#E4EDE9;--teal-50:#F2F6F4;--amber-500:#F2A93B;--ink:#16241F;--muted:#5F6E68;--line:#E4E7E3;--card:#fff;--danger:#C1503D}
   *{box-sizing:border-box}
   body{margin:0;font-family:'Inter',sans-serif;color:var(--ink);background:var(--teal-50)}
   h1,h2,h3{font-family:'Space Grotesk',sans-serif}
@@ -32,13 +32,16 @@
     <div>
       <h1>
         <?= esc($usuario['nombre']) ?>
-        <?php if ($usuario['rol'] === 'comerciante') : ?>
-          <span title="Empresa" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:var(--teal-600);color:#fff;border-radius:50%;font-size:10px;vertical-align:middle;">✓</span>
+        <?php if ($usuario['rol'] === 'comerciante' && (int) $usuario['verificado'] === 1) : ?>
+          <span title="Empresa verificada" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:var(--teal-600);color:#fff;border-radius:50%;font-size:10px;vertical-align:middle;">✓</span>
         <?php endif ?>
       </h1>
       <p><?= esc($usuario['email']) ?></p>
-      <?php if ($usuario['rol'] === 'comerciante' && ! empty($usuario['razon_social'])) : ?>
-        <p><?= esc($usuario['razon_social']) ?></p>
+      <?php if ($usuario['rol'] === 'comerciante') : ?>
+        <p><?= esc($usuario['razon_social'] ?? '') ?> · <?= (int) $usuario['verificado'] === 1 ? 'Empresa verificada' : 'Verificación pendiente: la revisa un administrador' ?></p>
+      <?php endif ?>
+      <?php if ($usuario['rol'] === 'admin') : ?>
+        <p>Administrador · <a href="<?= site_url('admin') ?>" style="color:var(--teal-700);font-weight:700;">Ir al panel</a></p>
       <?php endif ?>
     </div>
   </div>

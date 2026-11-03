@@ -12,7 +12,7 @@ class UsuarioModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nombre', 'email', 'password', 'telefono', 'dni', 'rol', 'razon_social', 'cuit'];
+    protected $allowedFields    = ['nombre', 'email', 'password', 'telefono', 'dni', 'rol', 'razon_social', 'cuit', 'suspendido', 'verificado'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -63,6 +63,17 @@ class UsuarioModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    /**
+     * Para el panel de administrador: todos los usuarios, sin la contraseña
+     * (aunque este picada, no hay ninguna razon para mandarla a una pantalla).
+     */
+    public function getParaAdmin(): array
+    {
+        return $this->select('id_usuario, nombre, email, telefono, dni, rol, razon_social, cuit, suspendido, verificado')
+                    ->orderBy('id_usuario', 'DESC')
+                    ->findAll();
+    }
 
     protected function hashPassword(array $data): array
     {

@@ -42,3 +42,12 @@ $routes->get('mensajes/(:num)', 'Mensajes::index/$1');
 $routes->get('mensajes/(:num)/listar', 'Mensajes::listar/$1');
 $routes->post('mensajes/(:num)/enviar', 'Mensajes::enviar/$1');
 
+// Panel de administrador: todo el grupo pasa primero por AdminFilter
+// (sesion iniciada y rol 'admin'), asi ninguna ruta queda sin proteger.
+$routes->group('admin', ['filter' => 'admin'], static function ($routes) {
+    $routes->get('', 'Admin::index');
+    $routes->post('usuarios/(:num)/suspender', 'Admin::suspender/$1');
+    $routes->post('usuarios/(:num)/verificar', 'Admin::verificar/$1');
+    $routes->post('herramientas/(:num)/bloquear', 'Admin::bloquear/$1');
+});
+

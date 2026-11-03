@@ -118,6 +118,10 @@ class Auth extends BaseController
             return redirect()->back()->withInput()->with('error', 'Email o contraseña incorrectos.');
         }
 
+        if ((int) $usuario['suspendido'] === 1) {
+            return redirect()->back()->withInput()->with('error', 'Tu cuenta está suspendida. Comunicate con un administrador.');
+        }
+
         $this->session->set([
             'id_usuario' => $usuario['id_usuario'],
             'nombre'     => $usuario['nombre'],

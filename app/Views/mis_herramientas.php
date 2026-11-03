@@ -105,7 +105,7 @@
   <!-- ESTADO: con herramientas publicadas -->
   <div class="view grid-view" id="view-listado">
     <?php
-    $etiquetasEstado = ['disponible' => 'Disponible', 'no_disponible' => 'Pausada', 'alquilada' => 'Alquilada'];
+    $etiquetasEstado = ['disponible' => 'Disponible', 'no_disponible' => 'Pausada', 'alquilada' => 'Alquilada', 'bloqueada' => 'Bloqueada por un administrador'];
     foreach ($herramientas as $h) :
         $pausada = $h['estado'] === 'no_disponible';
     ?>
@@ -124,7 +124,7 @@
         </div>
         <div class="tool-actions">
           <a class="btn-edit" href="<?= site_url('mis-herramientas/editar/' . (int) $h['id_herramienta']) ?>">Editar</a>
-          <?php if ($h['estado'] !== 'alquilada') : ?>
+          <?php if (! in_array($h['estado'], ['alquilada', 'bloqueada'], true)) : ?>
             <button class="btn-pause" type="button" data-id="<?= (int) $h['id_herramienta'] ?>" data-estado="<?= $pausada ? 'disponible' : 'no_disponible' ?>">
               <?= $pausada ? 'Reactivar' : 'Pausar' ?>
             </button>

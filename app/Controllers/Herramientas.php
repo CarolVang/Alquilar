@@ -207,7 +207,12 @@ class Herramientas extends BaseController
     {
         $herramienta = (new HerramientaModel())->find($id);
 
-        if (! $herramienta) {
+        // Una publicacion bloqueada por un admin solo la ven su dueño y los admins.
+        $puedeVerBloqueada = $herramienta
+            && ($this->session->get('rol') === 'admin'
+                || (int) $this->session->get('id_usuario') === (int) $herramienta['id_usuario']);
+
+        if (! $herramienta || ($herramienta['estado'] === 'bloqueada' && ! $puedeVerBloqueada)) {
             return redirect()->to('/catalogo')->with('error', 'Esa herramienta no existe o ya no está disponible.');
         }
 

@@ -34,6 +34,8 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+        'admin'         => \App\Filters\AdminFilter::class,
+        'cuentaActiva'  => \App\Filters\CuentaActiva::class,
     ];
 
     /**
@@ -74,6 +76,7 @@ class Filters extends BaseFilters
         'before' => [
             // 'honeypot',
             'csrf',
+            'cuentaActiva',
             // 'invalidchars',
         ],
         'after' => [
